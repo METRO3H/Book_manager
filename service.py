@@ -12,28 +12,25 @@ sock.connect (bus_address)
 try:
     # Send data
     message = b'00010sinitservi'
-    print ('sending {!r}'.format (message))
+    print ('sending {!r}'.format (message.decode('utf-8')))
     sock.sendall (message)
     sinit = 1
     while True:
         # Look for the response
-        print ("Waiting for transaction")
+        print ("[Status] Waiting for transaction...")
         amount_received = 0
         amount_expected = int(sock.recv (5))
         while amount_received < amount_expected:
             data = sock.recv (amount_expected - amount_received)
             amount_received += len (data)
             
-        print ("Processing ...")
-        print('received {!r}'.format(data))
+        print('[Status] Received {!r}'.format(data.decode('utf-8')))
         
         if (sinit == 1):
             sinit = 0
-            print ('Received sinit answer')
         else:
-            print ("Send answer")
             message = b'00013serviReceived'
-            print ('sending {!r}'.format (message))
+            print (' sending {!r}'.format(message))
             sock.sendall (message)
 finally:
     print ('closing socket')
