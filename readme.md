@@ -29,3 +29,11 @@ La transacción de respuesta tiene la misma estructura, con un agregado entre el
 Ejemplo :
 
     00022sumarOK120 + 345 = 465
+
+Servicio registro :
+
+Mandar por el cliente informacion de la forma: user_mail_password
+
+Servicio loging :
+
+Mandar por el cliente informacion de la forma: mail_password
