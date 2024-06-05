@@ -7,4 +7,4 @@ class service:
     update_inventory = "upd_i"
     delete_inventory = "del_i"
     add_user = "reg_i"
-
+    contenido_destacado = "promo"
