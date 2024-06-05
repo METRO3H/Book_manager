@@ -47,7 +47,7 @@ def add_user(username, email, password, role):
 class CustomService(Soa_Service):
     # ACA SE HACE LA MAGIA XD
     def process_data(self, request):
-
+        global service_name
         # Proceso de data de usuario para enviar a add_user
         # Data llega como name_mail_password
         # Split the data by underscore
@@ -56,7 +56,10 @@ class CustomService(Soa_Service):
 
         # if the data is not in the correct format, return an error message
         if len(data_parts) != 3:
-            return "not the correct format"
+            request = "Bad format"
+            # request to string
+            request = str(request)
+            return service_name, request
 
         # Assign each part to a variable
         name, email, password = data_parts
@@ -64,7 +67,7 @@ class CustomService(Soa_Service):
         # Call the add_user function
         answer = add_user(name, email, password, "user")
 
-        global service_name
+        
         
         response = answer
         
