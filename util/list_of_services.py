@@ -6,5 +6,5 @@ class service:
     insert_inventory = "ins_i"
     update_inventory = "upd_i"
     delete_inventory = "del_i"
-
+    add_user = "reg_i"
 
