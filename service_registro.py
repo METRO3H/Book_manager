@@ -56,7 +56,7 @@ class CustomService(Soa_Service):
 
         # if the data is not in the correct format, return an error message
         if len(data_parts) != 3:
-            return "The data is not in the correct format. Please enter the data in the format: name_email_password"
+            return "not the correct format"
 
         # Assign each part to a variable
         name, email, password = data_parts
