@@ -4,7 +4,7 @@ import psycopg2
 from datetime import datetime
 
 POSTGRES_HOST = "172.17.0.3"  # METER IP DE SU DOCKER CONTAINER
-POSTGRES_PORT = "5432"        # PostgreSQL port deberia ser este si no lo cambiaron el default
+POSTGRES_PORT = "5432"        # PostgreSQL port debería ser este si no lo cambiaron el default
 POSTGRES_DB = "manga_db"
 POSTGRES_USER = "postgres"
 POSTGRES_PASSWORD = "1234"
@@ -58,8 +58,8 @@ class CustomService(Soa_Service):
         data_parts = request.split('_')
         # if the data is not in the correct format, return an error message
         if len(data_parts) != 2:
-            request = "Bad format"
-            return service_name, request
+            response = "Bad format"
+            return service_name, response
 
         # Assign each part to a variable
         email, password = data_parts
