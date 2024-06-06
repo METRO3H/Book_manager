@@ -1,31 +1,35 @@
-El bus a usar en el proyecto está en una imagen Docker. Para ejecutarlo, tienen que ingresar el siguiente comando:
+# BUS SOA
+- El bus a usar en el proyecto está en una imagen Docker. Para ejecutarlo, tienen que ingresar el siguiente comando:
 
 ```docker
 docker run -d -p 5000:5000 jrgiadach/soabus:v1
 ```
 
 y luego, enviar transacciones al puerto **5000** del localhost.
+# Base de datos Postgres
 
-La estructura de la transacción es la siguiente:
+## Pasos para configurar y ejecutar la base de datos Postgres con Docker
 
-    NNNNNSSSSSDATOS
+1. **Construir la imagen de Docker**
+    ```sh
+    sudo docker build -t custom-postgres .
+    ```
 
-en que:
+2. **Crear y ejecutar un contenedor de Postgres**
+    ```sh
+    sudo docker run --name my_postgres_container -e POSTGRES_PASSWORD=1234 -d custom-postgres
+    ```
 
-***NNNNN*** es la cantidad de caracteres que vienen a continuación.
-
-***SSSSS*** es el nombre del servicio que se requiere usar.
-
-***DATOS*** son los datos de la transacción.
-
-Tanto ***NNNNN***, como ***SSSSS*** deben ser exactamente de largo 5, y DATOS del largo de los datos que se envían al servicio.
-
-Ejemplo :
-
-    00012sumar120 345
-
-La transacción de respuesta tiene la misma estructura, con un agregado entre el nombre del servicio y la respuesta del servicio, que indica el resultado del proceso (OK o NK)
-
-Ejemplo :
-
-    00022sumarOK120 + 345 = 465
+3. **Acceder a Postgres desde un terminal (opcional)**
+    ```sh
+    sudo docker exec -it my_postgres_container bash
+    ```
+4. **Obtener IP de contenedor**
+   ```sh
+   sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' my_postgres_container
+   ```
+# Servicios
+- Registro :
+    Mandar por el cliente informacion de la forma: ```user_mail_password```
+- Loging :
+    Mandar por el cliente informacion de la forma: ```mail_password```
