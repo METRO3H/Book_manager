@@ -2,7 +2,7 @@
 from soa_service import Soa_Service
 from util.list_of_services import service
 
-class CustomService(Soa_Service):
+class Get_Inventary(Soa_Service):
     # ACA SE HACE LA MAGIA XD
     def process_data(self, request):
         global service_name
@@ -15,8 +15,8 @@ class CustomService(Soa_Service):
 
 # Si vas a agregar un service tienes que hacerlo en util/list_of_services.py, de esa forma todo el sistema puede saber de ese service que creaste.
 # Aquí tienes que seleccionar el service que vas a usar.
-service_name = service.test_service
+service_name = service.get_inventory
 
-test_service = CustomService(service_name)
+test_service = Get_Inventary(service_name)
 
 test_service.run()

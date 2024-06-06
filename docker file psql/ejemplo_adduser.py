@@ -27,8 +27,10 @@ def add_user(username, email, password, role):
     
     # Execute SQL query to add user
     query = """
-        INSERT INTO users (username, email, password, role, created_at)
+    --sql
+       INSERT INTO users (username, email, password, role, created_at)
         VALUES (%s, %s, %s, %s, %s)
+    ;
     """
     values = (username, email, password, role, created_at)
     cur.execute(query, values)
