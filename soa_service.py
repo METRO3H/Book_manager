@@ -60,6 +60,7 @@ class Soa_Service:
         
     def send_message(self, service, data):
         response_length = len(service) + len(data)
+        # print("Size : ", response_length)
         response_length = str(response_length).zfill(5)
         message = response_length + service + data
         message = message.encode('utf-8')
