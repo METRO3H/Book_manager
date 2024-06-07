@@ -4,7 +4,7 @@ from util.list_of_services import service
 import psycopg2
 import json
 import datetime
-POSTGRES_HOST = "172.17.0.3"  # METER IP DE SU DOCKER CONTAINER
+POSTGRES_HOST = "172.17.0.2"  # METER IP DE SU DOCKER CONTAINER
 POSTGRES_PORT = "5432"        # PostgreSQL port debería ser este si no lo cambiaron el default
 POSTGRES_DB = "manga_db"
 POSTGRES_USER = "postgres"
