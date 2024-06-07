@@ -5,7 +5,7 @@ import psycopg2
 import json
 from datetime import date, datetime
 from decimal import Decimal
-POSTGRES_HOST = "172.17.0.2"  # METER IP DE SU DOCKER CONTAINER
+POSTGRES_HOST = "172.17.0.3"  # METER IP DE SU DOCKER CONTAINER
 POSTGRES_PORT = "5432"        # PostgreSQL port debería ser este si no lo cambiaron el default
 POSTGRES_DB = "manga_db"
 POSTGRES_USER = "postgres"
@@ -36,7 +36,7 @@ def Get_Book(book_id):
         query = """--sql
          SELECT * FROM manga WHERE id = %s;
         """
-        cur.execute(query, (book_id))
+        cur.execute(query, (book_id,))
 
         # Fetch one record
         book_info = cur.fetchone()
@@ -44,6 +44,7 @@ def Get_Book(book_id):
         # Close cursor and connection
         cur.close()
         conn.close()
+        
 
         if book_info is None:
             return False
@@ -97,10 +98,16 @@ def Get_All():
         # Formatear el resultado como un diccionario
         book_info = [dict(zip(attributes, row)) for row in book_info]
         
-        book_info = json.dumps(book_info, indent=2, default=custom_serializer, ensure_ascii=False)
+        book_info_json = json.dumps(book_info, indent=2, default=custom_serializer, ensure_ascii=False)
 
-        
-        return book_info
+        # Verificar la longitud del JSON y recortar si es necesario
+        while len(book_info_json) > 985:
+            # Remover el último objeto de la lista
+            book_info.pop()
+            # Convertir nuevamente la lista de objetos a una cadena JSON
+            book_info_json = json.dumps(book_info, indent=2, default=custom_serializer, ensure_ascii=False)
+
+        return book_info_json
 
 
     except Exception as e:
@@ -108,7 +115,7 @@ def Get_All():
         return False
 
 
-class Get_Inventary(Soa_Service):
+class Get_Inventory(Soa_Service):
     # ACA SE HACE LA MAGIA XD
     def process_data(self, request):
         global service_name
@@ -116,6 +123,8 @@ class Get_Inventary(Soa_Service):
         if len(request.split(" ")) != 1:
             response = "Error de formato"
             return service_name, response
+        
+        book_info = ""
         
         if request == "all":
             book_info = Get_All()
@@ -136,6 +145,6 @@ class Get_Inventary(Soa_Service):
 # Aquí tienes que seleccionar el service que vas a usar.
 service_name = service.get_inventory
 
-test_service = Get_Inventary(service_name)
+test_service = Get_Inventory(service_name)
 
 test_service.run()

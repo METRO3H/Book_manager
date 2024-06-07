@@ -34,6 +34,7 @@ def receive_message():
     global sock
     amount_received = 0
     amount_expected = int(sock.recv (5))
+    data = ""
     while amount_received < amount_expected:
         data = sock.recv (amount_expected - amount_received)
         amount_received += len (data)
@@ -90,7 +91,7 @@ try:
         
         response = receive_message()[7:]
 
-        print(color("green", "[Status]"), color("white", "Response"), color("yellow", f"'{response}'"))
+        print(color("green", "[Status]"), color("white", "Response : "), color("yellow", f"'{response}'"))
         
 
 finally:
