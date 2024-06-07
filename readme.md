@@ -2,7 +2,7 @@
 - El bus a usar en el proyecto está en una imagen Docker. Para ejecutarlo, tienen que ingresar el siguiente comando:
 
 ```docker
-docker run -d -p 5000:5000 jrgiadach/soabus:v1
+sudo docker run -d -p 5000:5000 jrgiadach/soabus:v1
 ```
 
 y luego, enviar transacciones al puerto **5000** del localhost.
@@ -28,6 +28,11 @@ y luego, enviar transacciones al puerto **5000** del localhost.
    ```sh
    sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' my_postgres_container
    ```
+
+5. **Iniciar el docker de postgres si es que nada funciona**
+    ```docker
+    sudo docker start 89af24ee582f
+    ```
 # Servicios
 - Registro :
     Mandar por el cliente informacion de la forma: ```user_mail_password```
