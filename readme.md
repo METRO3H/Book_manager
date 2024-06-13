@@ -15,7 +15,11 @@
 # Usar cliente
 Usar cliente.py para comunicarse con los servicios
 # Servicios
-- Registro :
-    Mandar por el cliente informacion de la forma: ```user_mail_password```
-- Loging :
-    Mandar por el cliente informacion de la forma: ```mail_password```
+- Add user :
+    forma: ```user_mail_password```
+- Log user :
+    forma: ```mail_password```
+- Hacer reviews :
+    forma: ```userid_mangaid_rating_reviewtext```
+- Get reviews :
+    forma: ```mangaid_userid*optional```
