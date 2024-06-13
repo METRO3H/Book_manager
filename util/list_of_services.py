@@ -9,3 +9,5 @@ class service:
     add_user = "reg_i"
     log_user = "log_i"
     contenido_destacado = "promo"
+    hacer_review = "rev_i"
+    get_reviews = "res_i"
