@@ -23,3 +23,13 @@ Usar cliente.py para comunicarse con los servicios
     forma: ```userid_mangaid_rating_reviewtext```
 - Get reviews :
     forma: ```mangaid_userid*optional```
+- Promocionar :
+    forma: ```mangaid numero dias/semanas```
+- Modificar :
+    forma: ```mangaid|TagAmodificar|valornuevo```
+- Agregar :
+    forma: ```titulo|genero|formato|publicacion estatus|release date|sales|rentals|price|availableonline|copias fisicas disp|fecha de creacion*opcional|```
+- Eliminar :
+    forma: ```id```
+- Get inventory :
+    forma: ```id/all```
