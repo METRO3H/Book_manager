@@ -15,6 +15,7 @@
 # Usar cliente
 Usar cliente.py para comunicarse con los servicios
 # Servicios
+Hay que activarlos con sus .py respectivos
 - Add user :
     forma: ```user_mail_password```
 - Log user :
