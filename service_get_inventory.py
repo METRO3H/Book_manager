@@ -5,11 +5,7 @@ import psycopg2
 import json
 from datetime import date, datetime
 from decimal import Decimal
-POSTGRES_HOST = "172.20.0.2"  # METER IP DE SU DOCKER CONTAINER
-POSTGRES_PORT = "5432"        # PostgreSQL port debería ser este si no lo cambiaron el default
-POSTGRES_DB = "manga_db"
-POSTGRES_USER = "postgres"
-POSTGRES_PASSWORD = "1234"
+from credencialBD import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
 
 def custom_serializer(obj):
     if isinstance(obj, (datetime, date)):
