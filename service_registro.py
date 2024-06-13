@@ -3,11 +3,7 @@ from util.list_of_services import service
 import psycopg2
 from datetime import datetime
 
-POSTGRES_HOST = "172.17.0.3"  # METER IP DE SU DOCKER CONTAINER
-POSTGRES_PORT = "5432"        # PostgreSQL port deberia ser este si no lo cambiaron el default
-POSTGRES_DB = "manga_db"
-POSTGRES_USER = "postgres"
-POSTGRES_PASSWORD = "1234"
+from credencialBD import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
 
 def add_user(username, email, password, role):
     try:

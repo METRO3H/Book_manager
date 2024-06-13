@@ -1,0 +1,5 @@
+POSTGRES_HOST = "localhost"
+POSTGRES_PORT = "5433"
+POSTGRES_DB = "manga_db"
+POSTGRES_USER = "postgres"
+POSTGRES_PASSWORD = "1234"

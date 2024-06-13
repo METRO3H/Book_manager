@@ -1,0 +1,29 @@
+services:
+  psql:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my_postgres_container
+    networks:
+      mynetwork:
+        ipv4_address: 10.0.0.2
+    ports:
+      - "5433:5432"
+    restart: always
+
+  soabus:
+    image: jrgiadach/soabus:v1
+    container_name: soabus_container
+    networks:
+      mynetwork:
+        ipv4_address: 10.0.0.3
+    ports:
+      - "5000:5000"
+    restart: always
+
+networks:
+  mynetwork:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
