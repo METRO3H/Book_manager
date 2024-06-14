@@ -40,3 +40,5 @@ Hay que activarlos con sus .py respectivos
     forma: ```id_usuario/id_manga```
 - Get wish list :
     forma: ```id_usuario```
+- Get estadisticas:
+    forma: ```<nro anio>-<nro mes>-<nro dia>_anio/mes/dia```
