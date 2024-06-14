@@ -34,9 +34,3 @@ Hay que activarlos con sus .py respectivos
     forma: ```id```
 - Get inventory :
     forma: ```id/all```
-- Add wish list :
-    forma: ```id_usuario/id_manga```
-- Remove wish list :
-    forma: ```id_usuario/id_manga```
-- Get wish list :
-    forma: ```id_usuario```
