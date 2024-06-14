@@ -4,31 +4,34 @@ import psycopg2
 from datetime import datetime
 from credencialBD import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
 
-def promocion(id_manga, duracion):
-    try:
+def conectar_bd():
+    return psycopg2.connect(
+        host=POSTGRES_HOST,
+        port=POSTGRES_PORT,
+        database=POSTGRES_DB,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD
+    )
+
+def add_wish_list(id_manga, id_user):
+    try:        
         # Connect to PostgreSQL
-        conn = psycopg2.connect(
-            host=POSTGRES_HOST,
-            port=POSTGRES_PORT,
-            database=POSTGRES_DB,
-            user=POSTGRES_USER,
-            password=POSTGRES_PASSWORD
-        )
+        conn = conectar_bd()
+
         # Create a cursor object
         cur = conn.cursor()
 
         # Get the current timestamp
         created_at = datetime.now()
         
-        # Execute SQL query to update the manga highlight
+        # Execute SQL query to insert the product into the wish list
         query = """
-                    UPDATE highlighted_content
-                    SET highlight_type = %s, created_at = %s
-                    WHERE manga_id = %s
+                    INSERT INTO wishlist (user_id, manga_id, created_at)
+                    VALUES (%s, %s, %s)
                 """
-        values = (duracion, created_at, id_manga)
+        values = (id_user, id_manga, created_at)
         cur.execute(query, values)
-        
+
         # Commit the transaction
         conn.commit()
         
@@ -36,25 +39,24 @@ def promocion(id_manga, duracion):
         cur.close()
         conn.close()
 
-        return "El manga: " + id_manga + " ha sido promocionado satisfactoriamente."
+        return "El manga: " + id_manga + " fue agregado a la lista de deseados."
     
     except Exception as e:
-        return f"A ocurrido un error: {str(e)}"
-
+        return f"A ocurrido un error: {str(e)}"    
+    
 class CustomService(Soa_Service):
-    # ACA SE HACE LA MAGIA XD
     def process_data(self, request):
         global service_name
-        
-        response = request.split(" ", 1)
-        id_manga = response[0]
-        duracion = response[1]
-        respuesta = promocion(id_manga, duracion)
 
+        response = request.split(" ", 1)
+        id_user = response[0]
+        id_manga = response[1]
+
+        respuesta = add_wish_list(id_manga, id_user)
         return service_name, respuesta
 
 # Si vas a agregar un service tienes que hacerlo en util/list_of_services.py, de esa forma todo el sistema puede saber de ese service que creaste.
 # Aquí tienes que seleccionar el service que vas a usar.
-service_name = service.contenido_destacado
+service_name = service.add_wish_list
 test_service = CustomService(service_name)
 test_service.run()

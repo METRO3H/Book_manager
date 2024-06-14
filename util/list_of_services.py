@@ -11,3 +11,6 @@ class service:
     contenido_destacado = "promo"
     hacer_review = "rev_i"
     get_reviews = "res_i"
+    add_wish_list = "addwl"
+    remove_wish_list = "remwl"
+    get_wish_list = "getwl"
