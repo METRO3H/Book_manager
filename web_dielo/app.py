@@ -2,8 +2,10 @@ from flask import Flask, request, render_template, redirect, url_for
 import socket
 import os
 import sys
+
 # Añadir el directorio padre al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from util.color import color
 from util.list_of_services import service
 
@@ -34,20 +36,25 @@ def receive_message():
 
 @app.route('/')
 def index():
-    variables = {key: value for key, value in vars(service).items() if not key.startswith('__')}
-    keys = variables.keys()
-    return render_template('index.html', services=keys)
+    return render_template('login.html')
 
-@app.route('/procesar', methods=['POST'])
-def procesar():
-    selected_service = request.form['service']
-    input_data = request.form['input_data']
-    service_name = getattr(service, selected_service)
-
+@app.route('/login', methods=['POST'])
+def login():
+    correo = request.form['email']
+    contraseña = request.form['password']
+    input_data = correo + "_" + contraseña
+    service_name = "log_i"
+    print("correo:", correo)
     send_message(service_name, input_data)
     response = receive_message()[7:]
-    return render_template('resultado.html', service=selected_service.replace('_', ' ').capitalize(), input_data=input_data, response=response)
+    if "success" in response:  # Esta condición depende de tu lógica de autenticación
+        return redirect(url_for('home'))  # Redirigir a una página de éxito, por ejemplo, 'dashboard'
+    else:
+        return render_template('login.html', error="Correo o contraseña incorrecta")
+
+@app.route('/home')
+def home():
+    return "Bienvenido al panel de control"
 
 if __name__ == '__main__':
-    # Cambia el puerto aquí
-    app.run(debug=True, port=5001)  # Puedes cambiar 8080 al puerto que prefieras
+    app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras
