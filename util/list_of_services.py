@@ -15,3 +15,4 @@ class service:
     remove_wish_list = "remwl"
     get_wish_list = "getwl"
     get_estadisticas = "getes"
+    notification = "notif"
