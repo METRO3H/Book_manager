@@ -138,9 +138,11 @@ class CustomService(Soa_Service):
             print(f"Asunto no reconocido: {asunto}")
             return service_name, "Asunto no reconocido"
         
-        destinatario1 = "correodetareas11.9@gmail.com"
+        # Para pruebas usar: 
+        # destinatario1 = "correodetareas11.9@gmail.com"
+        # Y reemplazar en enviar_correo por destinatario => destinatario1
         # Llamar a la función para enviar correo con OAuth2 y la API de Gmail
-        enviar_correo(remitente, destinatario1, asunto, cuerpo, contraseña)
+        enviar_correo(remitente, destinatario, asunto, cuerpo, contraseña)
 
         return service_name, "Correo enviado satisfactoriamente"
 
