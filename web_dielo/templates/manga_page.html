@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/manga_page.css') }}"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <title>{{ manga_info.title}}</title>
+  </head>
+  <body>
+    {% include 'navbar.html' %}
+    <div id="main-container">
+      <div id="manga-card">
+        <img src="" id="manga-image" alt="" />
+        <div id="manga-info">
+          <div id="manga-meta">
+            <h1 id="title">{{ manga_info.title}}</h1>
+            <hr />
+            <h5 id="publication_status">{{ manga_info.publication_status}}</h5>
+            <h5 id="genre">{{ manga_info.genre}}</h5>
+            <h5 id="price">${{ manga_info.price}}</h5>
+          </div>
+          
+          <hr/>
+          <div id="button-container">
+            <button id="download-button" class="btn btn-dark">Descargar</button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
