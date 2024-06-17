@@ -1,6 +1,8 @@
 
 # Iniciar servidor con carpeta web dielo 
 revisar dependencias en el py antes para evitar problemas
+    
+    
     sudo python3 app.py
     
 # Ejecutar la base de datos Postgres con Docker y EL BUS SOA
