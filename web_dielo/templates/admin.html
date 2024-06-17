@@ -1,61 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
     <title>Bienvenido a la biblioteca de manga virtual</title>
 </head>
 <body>
     <nav>
         <ul>
-            <li><div id="uploadModal" class="modal">
-                <form class="modal-content">
-                    <h1>Upload File</h1>
-                    <input type="file" id="file" name="file">
-                    <button type="submit">Submit</button>
-                </form>
-            </div></li>
-            <li><a href="#">libreria</a></li>
-            <li><a href="#">carrito</a></li>
-            <form action="/logout"><li><button type="submit">Cerrar sesión</button></li></form>
-            <li class="upload"><a href="#" onclick="document.getElementById('uploadModal').style.display='block'">Upload</a></li>
-        </ul>
-    </nav>
-    <h1>Welcome to My Manga Online Bookstore</h1>
-    <div id="highlightContent">
-        <!-- Add your highlight content here in a 3x3 grid -->
-    </div>
-    <!--div id="uploadModal" class="modal">
-        <form class="modal-content">
-            <h1>Upload File</h1>
-            <input type="file" id="file" name="file">
-            <input type="text" id="text1" name="text1">
-            <input type="text" id="text2" name="text2">
-            <input type="text" id="text3" name="text3">
-            <button type="submit">Submit</button>
-        </form>
-    </div-->
-</body>
-</html>
             <li><form action="/deseados"><button type="submit">Lista de Deseados</button></form></li>
             <li><form action="/catalogo"><button type="submit">Catálogo de mangas</button></form></li>
             <li><form action="/logout"><button type="submit">Cerrar sesión</button></form></li>
-            <li><button type="button" onclick="document.getElementById('uploadModal')">Subir Manga</button></li>
+            <li><button type="button" onclick="document.getElementById('uploadModal').style.display='block'">Subir Manga</button></li>
         </ul>
     </nav>
     <br>
     <h2>Destacados</h2>
-    <form action="/destacados" method="get">
-        <div id="highlightContent" class="grid-container">
-            {% for manga in mangas %}
-                <div class="grid-item">
-                    <h3>{{ manga.name }}</h3>
-                    <p>{{ manga.promo }}</p>
-                    <img src="{{ url_for('static', filename='images/' + manga.image) }}" alt="{{ manga.name }} cover">
-                </div>
-            {% endfor %}
-        </div>
-    </form>
+    <div id="highlightContent" class="grid-container">
+        {% for manga in mangas %}
+            <div class="grid-item">
+                <h3>{{ manga.name }}</h3>
+                <p>{{ manga.promo }}</p>
+                <img src="{{ url_for('static', filename='images/' + manga.image) }}" alt="{{ manga.name }} cover">
+            </div>
+        {% endfor %}
+    </div>
 
     <!-- Upload Modal -->
     <div id="uploadModal" class="modal">

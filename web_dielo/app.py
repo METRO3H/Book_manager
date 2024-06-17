@@ -5,6 +5,7 @@ import sys
 from pdf2image import convert_from_path
 from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image
 
+# Añadir el directorio padre al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from util.color import color
@@ -18,6 +19,7 @@ app.secret_key = 'cotrofroto'
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 bus_address = ('localhost', 5000)
 sock.connect(bus_address)
+
 
 def send_message(service, data):
     response_length = len(service) + len(data)
@@ -36,6 +38,30 @@ def receive_message():
         amount_received += len(data)
     data = data.decode('utf-8')
     return data
+
+def get_mangas_destacados():
+    service_name = "getcd"
+    send_message(service_name, "")
+    response = receive_message()[7:]
+
+    featured_content = extract_manga_names(response)
+    image_dir = './static/images'  # Directory to save images
+    os.makedirs(image_dir, exist_ok=True)
+
+    mangas = []
+    for name, promo in featured_content:
+        pdf_path = search_pdfs(name, '../mangas')
+        if pdf_path:
+            # Create the image path
+            image_path = os.path.join(image_dir, f"{name}.pdf.png")
+            # Check if the image already exists
+            if not os.path.exists(image_path):
+                # If the image does not exist, convert the PDF to an image
+                image_path = convert_pdf_to_image(pdf_path, image_dir)
+            else:
+                image_path = f"{name}.pdf.png"
+            mangas.append({'name': name, 'promo': promo, 'image': image_path})
+    return mangas
 
 @app.route('/')
 def index():
@@ -82,65 +108,20 @@ def registro():
 
 @app.route('/admin')
 def admin():
-    service_name = "getcd"
-    send_message(service_name, "")
-    response = receive_message()[7:]
-
-    print(extract_manga_names(response))
-
-    featured_content = extract_manga_names(response)
-    image_dir = './static/images'  # Directory to save images
-    os.makedirs(image_dir, exist_ok=True)
-
-    mangas = []
-    for name, promo in featured_content:
-        pdf_path = search_pdfs(name, '../mangas')
-        if pdf_path:
-            image_path = convert_pdf_to_image(pdf_path, image_dir)
-            mangas.append({'name': name, 'promo': promo, 'image': image_path})
-    return render_template('admin.html')
+    mangas = get_mangas()
+    return render_template('admin.html', mangas=mangas)
 
 @app.route('/home')
 def home():
-    service_name = "getcd"
-    send_message(service_name, "")
-    response = receive_message()[7:]
-
-    print(extract_manga_names(response))
-
-    featured_content = extract_manga_names(response)
-    image_dir = './static/images'  # Directory to save images
-    os.makedirs(image_dir, exist_ok=True)
-
-    mangas = []
-    for name, promo in featured_content:
-        pdf_path = search_pdfs(name, '../mangas')
-        if pdf_path:
-            # Create the image path
-            image_path = os.path.join(image_dir, f"{name}.pdf.png")
-            # Check if the image already exists
-
-            # add the .pdf before the png, as image.pdf.png
-            print(image_path)
-            if not os.path.exists(image_path):
-                # If the image does not exist, convert the PDF to an image
-                image_path = convert_pdf_to_image(pdf_path, image_dir)
-            else:
-                image_path = f"{name}.pdf.png"
-            mangas.append({'name': name, 'promo': promo, 'image': image_path})
-
+    mangas = get_mangas()
     return render_template('home.html', mangas=mangas)
 
 @app.route('/catalogo')
 def catalogo():
-    servicename = "get_i"  # Nombre del servicio para obtener el contenido destacado
+    service_name = "get_i"  # Nombre del servicio para obtener el contenido destacado
     send_message(service_name, "all")
     response = receive_message()[7:]
-<<<<<<< HEAD
-    mangas = [manga.split('') for manga in response.split(',')]
-=======
     mangas = [manga.split('_') for manga in response.split(',')]
->>>>>>> 51d0e739fd18ccdf33453bbded525fb10a8dab40
     return render_template('catalogo.html', mangas=mangas)
 
 @app.route('/buscar-mangas', methods=['POST'])
