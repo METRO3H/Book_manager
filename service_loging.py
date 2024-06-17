@@ -24,7 +24,7 @@ def trylog_user(email, password):
 
         # Execute SQL query to search for user
         query = """
-            SELECT role FROM users 
+            SELECT id, role FROM users 
             WHERE email = %s AND password = %s
         """
         cur.execute(query, (email, password))
@@ -36,9 +36,9 @@ def trylog_user(email, password):
         cur.close()
         conn.close()
 
-        # If a user is found, return the role, else return False
+        # If a user is found, return the id and role, else return False
         if user:
-            return user[0]
+            return user
         else:
             return False
 
@@ -64,13 +64,10 @@ class CustomService(Soa_Service):
         email, password = data_parts
 
         # Call the trylog_user function
-        role = trylog_user(email, password)
-        print(role)
-        if role == "admin":
-            response = "admin"
-            print(response)
-        elif role:
-            response = "success"
+        user = trylog_user(email, password)
+        print(user)
+        if user:
+            response = f"{user[0]} {user[1]}"
             print(response)
         else:
             response = "error"
