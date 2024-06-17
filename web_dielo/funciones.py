@@ -21,3 +21,4 @@ def convert_pdf_to_image(pdf_path, output_dir):
     image_path = os.path.join(output_dir, image_filename)
     images[0].save(image_path, 'PNG')
     return image_filename  # Return only the filename
+
