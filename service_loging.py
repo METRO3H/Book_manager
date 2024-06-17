@@ -3,6 +3,12 @@ from util.list_of_services import service
 import psycopg2
 from datetime import datetime
 from credencialBD import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+from soa_service import Soa_Service
+from util.list_of_services import service
+import psycopg2
+from datetime import datetime
+from credencialBD import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+
 def trylog_user(email, password):
     try:
         # Connect to PostgreSQL
@@ -18,7 +24,7 @@ def trylog_user(email, password):
 
         # Execute SQL query to search for user
         query = """
-            SELECT * FROM users 
+            SELECT role FROM users 
             WHERE email = %s AND password = %s
         """
         cur.execute(query, (email, password))
@@ -30,9 +36,9 @@ def trylog_user(email, password):
         cur.close()
         conn.close()
 
-        # If a user is found, return True, else return False
+        # If a user is found, return the role, else return False
         if user:
-            return True
+            return user[0]
         else:
             return False
 
@@ -40,7 +46,6 @@ def trylog_user(email, password):
         print(f"An error occurred: {str(e)}")
         return False
 
-    
 class CustomService(Soa_Service):
     # ACA SE HACE LA MAGIA XD
     def process_data(self, request):
@@ -58,10 +63,13 @@ class CustomService(Soa_Service):
         # Assign each part to a variable
         email, password = data_parts
 
-        # Call the add_user function
-        answer = trylog_user(email, password)
-        print(answer)
-        if answer:
+        # Call the trylog_user function
+        role = trylog_user(email, password)
+        print(role)
+        if role == "admin":
+            response = "admin"
+            print(response)
+        elif role:
             response = "success"
             print(response)
         else:
@@ -69,8 +77,7 @@ class CustomService(Soa_Service):
             print(response)
 
         return service_name, response
-
-
+    
 # Si vas a agregar un service tienes que hacerlo en util/list_of_services.py, de esa forma todo el sistema puede saber de ese service que creaste.
 # Aquí tienes que seleccionar el service que vas a usar.
 service_name = service.log_user
