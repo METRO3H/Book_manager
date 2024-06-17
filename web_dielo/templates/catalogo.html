@@ -8,14 +8,21 @@
     <nav>
         <ul>
             <form action="/deseados"><li><button type="submit">Lista de Deseados</button></li></form>
-            <form action="/catalogo"><li><button type="submit">Catálogo de mangas</button></li></form>
+            <form action="/home"><li><button type="submit">Home</button></li></form>
         </ul>
     </nav>
     <br>
-    <h2>Destacados</h2>
+    <h2>Catálogo de mangas</h2>
+    <br>
+    <form action="/buscar-mangas" method="get">
+        <label for="busqueda">Buscar manga:</label>
+        <input type="text" id="busqueda-mangas" name="busqueda-mangas" required>
+        <button type="submit">Buscar</button>
+    </form>
+    <br>  
     <form action="/destacados" method="get">
         <div id="highlightContent">
-            {% for item in featured_content %}
+            {% for item in mangas %}
                 <li>{{ item }}</li>
             {% endfor %}
             <!-- Add your highlight content here in a 3x3 grid -->
