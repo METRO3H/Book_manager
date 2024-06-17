@@ -16,3 +16,4 @@ class service:
     get_wish_list = "getwl"
     get_estadisticas = "getes"
     notification = "notif"
+    get_contenido_destacado = "getcd"
