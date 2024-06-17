@@ -4,15 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/loggin.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <!--link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}"-->
     <title>Bienvenido</title>
 </head>
 <body>
-    <nav style="background-color: black; width: 100%;">
-        <ul>
-            <form action="/registrarse"><li><button id="register" type="submit">Registrarse</button></li></form>
-        </ul>
-    </nav>
     <h1>Biblioteca Virtual de Manga</h1>
     <br>
     <h2>Inicie sesión</h2>
@@ -22,8 +17,12 @@
             <label for="email">Email:</label><br>
             <input type="email" id="email" name="email" required><br>
             <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required><br><br>
+            <input type="password" id="password" name="password" required><br>
             <button id="loggin" type="submit">Enviar</button>
+        </form>
+        <br>
+        <form action="/registrarse">
+            <button id="register" type="submit">Registrarse</button>
         </form>
     </div>
     {% if error %}
