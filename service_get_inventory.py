@@ -73,6 +73,7 @@ def Get_All():
         # Create a cursor object
         cur = conn.cursor()
 
+<<<<<<< HEAD
         # Execute SQL query to search for user
         query = """--sql
          SELECT * FROM manga;
@@ -81,11 +82,22 @@ def Get_All():
 
         # Fetch one record
         book_info = cur.fetchall()
+=======
+        # Execute SQL query to select manga names and genres
+        query = """--sql
+         SELECT title, genre FROM manga;
+        """
+        cur.execute(query)
+
+        # Fetch all records
+        manga_info = cur.fetchall()
+>>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
 
         # Close cursor and connection
         cur.close()
         conn.close()
 
+<<<<<<< HEAD
         if book_info is None:
             return False
         
@@ -105,12 +117,27 @@ def Get_All():
 
         return book_info_json
 
+=======
+        if manga_info is None:
+            return False
+
+        # Format the results as 'name_genre'
+        manga_info = [f"{name}_{genre}" for name, genre in manga_info]
+
+        # Join the results into a single string, separated by commas
+        manga_info_str = ",".join(manga_info)
+
+        return manga_info_str
+>>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return False
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
 class Get_Inventory(Soa_Service):
     # ACA SE HACE LA MAGIA XD
     def process_data(self, request):

@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="index.css">
-    <tittle>Bienvenido a la biblioteca de manga virtual</tittle>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <title>Bienvenido a la biblioteca de manga virtual</title>
 </head>
 <body>
     <nav>
         <ul>
-            <form action="/deseados"><li><button type="submit">Lista de Deseados</button></li></form>
-            <form action="/catalogo"><li><button type="submit">Catálogo de mangas</button></li></form>
-            <form action="/logout"><li><button type="submit">Cerrar sesión</button></li></form>
+            <li><form action="/deseados"><button type="submit">Lista de Deseados</button></form></li>
+            <li><form action="/catalogo"><button type="submit">Catálogo de mangas</button></form></li>
+            <li><form action="/logout"><button type="submit">Cerrar sesión</button></form></li>
         </ul>
     </nav>
     <br>
     <h2>Destacados</h2>
     <form action="/destacados" method="get">
-        <div id="highlightContent">
-            {% for item in featured_content %}
-                <li>{{ item }}</li>
+        <div id="highlightContent" class="grid-container">
+            {% for manga in mangas %}
+                <div class="grid-item">
+                    <h3>{{ manga.name }}</h3>
+                    <p>{{ manga.promo }}</p>
+                    <img src="{{ url_for('static', filename='images/' + manga.image) }}" alt="{{ manga.name }} cover">
+                </div>
             {% endfor %}
-            <!-- Add your highlight content here in a 3x3 grid -->
         </div>
     </form>
 </body>

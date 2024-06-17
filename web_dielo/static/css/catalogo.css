@@ -1,0 +1,26 @@
+
+/* Styles for the manga catalog */
+#highlightContent {
+    width: 80%;
+    margin: auto;
+}
+
+#highlightContent table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#highlightContent table th,
+#highlightContent table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#highlightContent table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #333;
+    color: white;
+}
