@@ -48,13 +48,17 @@ def login():
     send_message(service_name, input_data)
     response = receive_message()[7:]
     if "success" in response:  # Esta condición depende de tu lógica de autenticación
-        return redirect(url_for('home'))  # Redirigir a una página de éxito, por ejemplo, 'dashboard'
+        return redirect(url_for('home'))  # Redirigir a una página de éxito
     else:
         return render_template('login.html', error="Correo o contraseña incorrecta")
 
 @app.route('/home')
 def home():
-    return "Bienvenido al panel de control"
+    service_name = "getcd"  # Nombre del servicio para obtener el contenido destacado
+    send_message(service_name, "")
+    response = receive_message()[7:]
+    featured_content = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
+    return render_template('home.html', featured_content=featured_content)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras
