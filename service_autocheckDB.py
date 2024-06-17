@@ -1,6 +1,8 @@
 import psycopg2
 from psycopg2 import sql
+import os
 from credencialBD import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+from time import sleep
 
 def check_and_fix_database_integrity():
     print("Starting database integrity check...")
@@ -177,5 +179,63 @@ def check_and_fix_database_integrity():
 
     print("Database integrity check completed.")
 
-# Run the function
-check_and_fix_database_integrity()
+
+
+def check_and_add_mangas():
+    print("Starting manga check and add...")
+    try:
+        # Connect to your PostgreSQL database
+        print("Connecting to the database...")
+        conn = psycopg2.connect(
+            dbname=POSTGRES_DB,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT
+        )
+        cursor = conn.cursor()
+
+        # Get list of all manga files in the folder
+        manga_folder = "mangas"
+        manga_files = os.listdir(manga_folder)
+        manga_titles = [os.path.splitext(file)[0] for file in manga_files if file.endswith('.pdf')]
+
+        # Define check and fix queries
+        check_query = "SELECT title FROM manga WHERE title = %s;"
+        fix_query = """
+            INSERT INTO manga (title, genre, format, publication_status, release_date, sales_count, rental_count, price, available_online, physical_copies_available)
+            VALUES (%s, 'Miscellaneous', 'PDF', 'Unknown', CURRENT_DATE, 0, 0, 0.00, FALSE, 0);
+        """
+
+        # Execute checks and fixes
+        print("Executing checks and fixes...")
+        for title in manga_titles:
+            print(f"Checking if manga '{title}' is in the database...")
+            cursor.execute(check_query, (title,))
+            result = cursor.fetchone()
+            if result is None:
+                print(f"Manga '{title}' is not in the database. Adding it...")
+                cursor.execute(fix_query, (title,))
+                conn.commit()
+                print("Manga added.")
+            else:
+                print(f"Manga '{title}' is already in the database.")
+
+        # Close connection
+        print("Closing database connection...")
+        cursor.close()
+        conn.close()
+
+    except Exception as e:
+        print(f"Error checking and adding mangas: {e}")
+
+    print("Manga check and add completed.")
+
+if __name__ == "__main__":
+
+    #loop every 5 minutes
+    while True:
+        
+        check_and_fix_database_integrity()
+        check_and_add_mangas()
+        sleep(300)
