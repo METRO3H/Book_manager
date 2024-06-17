@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, session
 import socket
 import os
 import sys
@@ -10,6 +10,8 @@ from util.color import color
 from util.list_of_services import service
 
 app = Flask(__name__)
+# Definir la clave secreta
+app.secret_key = 'cotrofroto'
 
 # Configurar el socket y la dirección del bus
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,16 +46,26 @@ def login():
     contraseña = request.form['password']
     input_data = correo + "_" + contraseña
     service_name = "log_i"
-    # print("correo:", correo)
     send_message(service_name, input_data)
     response = receive_message()[7:]
+    datos = response.split(" ",1)
+    user_id = datos[0]
+    rol = datos[1]
 
     if "admin" in response:
+        session['user_id'] = user_id
+        session['rol'] = rol
         return redirect(url_for('admin'))
-    elif "success" in response:  # Esta condición depende de tu lógica de autenticación
-        return redirect(url_for('home'))  # Redirigir a una página de éxito
+    elif "customer" in response:
+        session['user_id'] = user_id
+        session['rol'] = rol
+        return redirect(url_for('home'))
     else:
         return render_template('login.html', error="Correo o contraseña incorrecta")
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
 
 @app.route('/home')
 def home():
@@ -61,7 +73,7 @@ def home():
     send_message(service_name, "")
     response = receive_message()[7:]
     featured_content = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
-    return render_template('home.html', featured_content=featured_content)
+    return render_template('home.html', featured_content = featured_content)
 
 @app.route('/catalogo')
 def catalogo():
@@ -69,7 +81,7 @@ def catalogo():
     send_message(service_name, "all")
     response = receive_message()[7:]
     mangas = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
-    return render_template('catalogo.html', mangas=mangas)
+    return render_template('catalogo.html', mangas = mangas)
 
 @app.route('/buscar-mangas', methods=['POST'])
 def buscarmanga():
@@ -77,7 +89,16 @@ def buscarmanga():
     send_message(service_name, "all")
     response = receive_message()[7:]
     mangas = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
-    return render_template('catalogo.html', mangas=mangas)
+    return render_template('catalogo.html', manga = mangas)
+
+@app.route('/logout')
+def logout():
+    # Eliminar datos de sesión específicos
+    # session.pop('user_id', None)
+    # session.pop('rol', None)
+    # O limpiar toda la sesión
+    session.clear()
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="../css/index.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body>
     <nav>
@@ -15,7 +15,7 @@
             </div></li>
             <li><a href="#">libreria</a></li>
             <li><a href="#">carrito</a></li>
-            
+            <form action="/logout"><li><button type="submit">Cerrar sesión</button></li></form>
             <li class="upload"><a href="#" onclick="document.getElementById('uploadModal').style.display='block'">Upload</a></li>
         </ul>
     </nav>
@@ -23,7 +23,7 @@
     <div id="highlightContent">
         <!-- Add your highlight content here in a 3x3 grid -->
     </div>
-    <div id="uploadModal" class="modal">
+    <!--div id="uploadModal" class="modal">
         <form class="modal-content">
             <h1>Upload File</h1>
             <input type="file" id="file" name="file">
@@ -32,6 +32,6 @@
             <input type="text" id="text3" name="text3">
             <button type="submit">Submit</button>
         </form>
-    </div>
+    </div-->
 </body>
 </html>
