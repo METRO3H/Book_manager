@@ -79,11 +79,15 @@ def login():
     user_id = datos[0]
     rol = datos[1]
 
-    if "admin" in response:
+    if "admin" in rol:
         session['user_id'] = user_id
         session['rol'] = rol
         return redirect(url_for('admin'))
-    elif "customer" in response:
+    elif "customer" in rol:
+        session['user_id'] = user_id
+        session['rol'] = rol
+        return redirect(url_for('home'))
+    elif "user" in rol:
         session['user_id'] = user_id
         session['rol'] = rol
         return redirect(url_for('home'))
@@ -104,7 +108,7 @@ def registro():
     send_message(service_name, input_data)
     response = receive_message()[7:]
 
-    return render_template('login.html', response, error="Usuario ya existente")
+    return render_template('login.html')
 
 @app.route('/admin')
 def admin():
