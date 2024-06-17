@@ -61,7 +61,7 @@ class CustomService(Soa_Service):
         name, email, password = data_parts
 
         # Call the add_user function
-        answer = add_user(name, email, password, "user")
+        answer = add_user(name, email, password, "customer")
 
         
         
