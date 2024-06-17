@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/deseados.css') }}">
+    <title>Lista de Deseados</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><form action="/home"><button type="submit">Home</button></form></li>
+            <li><form action="/deseados"><button type="submit">Lista de Deseados</button></form></li>
+        </ul>
+    </nav>
+    <br>
+    <h2>Lista de Deseados</h2>
+    <table class="wishlist-table">
+        <thead>
+            <tr>
+                <th>Nombre del Manga</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for manga in mangas %}
+                <tr>
+                    <td>{{ manga.name }}</td>
+                    <td>{{ manga.price }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

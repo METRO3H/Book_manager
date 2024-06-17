@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="index.css">
-    <tittle>Bienvenido a la biblioteca de manga virtual</tittle>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/catalogo.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <title>Bienvenido a la biblioteca de manga virtual</title>
 </head>
 <body>
     <nav>
@@ -22,10 +23,18 @@
     <br>  
     <form action="/destacados" method="get">
         <div id="highlightContent">
-            {% for item in mangas %}
-                <li>{{ item }}</li>
-            {% endfor %}
-            <!-- Add your highlight content here in a 3x3 grid -->
+            <table>
+                <tr>
+                    <th>Manga</th>
+                    <th>Genre</th>
+                </tr>
+                {% for manga, genre in mangas %}
+                    <tr>
+                        <td>{{ manga }}</td>
+                        <td>{{ genre }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
         </div>
     </form>
 </body>

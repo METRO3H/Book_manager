@@ -18,18 +18,19 @@ def get_wish_list(user_id):
         cur = conn.cursor()
         
         query = """
-                    SELECT manga_id
-                    FROM wishlist
-                    WHERE user_id = %s
+                    SELECT m.title, m.price
+                    FROM wishlist w
+                    JOIN manga m ON w.manga_id = m.id
+                    WHERE w.user_id = %s
                 """
-        values = (user_id)
+        values = (user_id,)
         cur.execute(query, values)
         mangas = cur.fetchall()
         
         cur.close()
         conn.close()
         
-        return [manga[0] for manga in mangas]
+        return [(manga[0], float(manga[1])) for manga in mangas]
     except Exception as e:
         return [], f"Ocurrió un error al obtener la lista de deseos: {str(e)}"
 

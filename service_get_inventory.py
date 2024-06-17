@@ -73,43 +73,33 @@ def Get_All():
         # Create a cursor object
         cur = conn.cursor()
 
-        # Execute SQL query to search for user
+        # Execute SQL query to select manga names and genres
         query = """--sql
-         SELECT * FROM manga;
+         SELECT title, genre FROM manga;
         """
         cur.execute(query)
 
-        # Fetch one record
-        book_info = cur.fetchall()
+        # Fetch all records
+        manga_info = cur.fetchall()
 
         # Close cursor and connection
         cur.close()
         conn.close()
 
-        if book_info is None:
+        if manga_info is None:
             return False
-        
-        attributes = [desc[0] for desc in cur.description]
 
-        # Formatear el resultado como un diccionario
-        book_info = [dict(zip(attributes, row)) for row in book_info]
-        
-        book_info_json = json.dumps(book_info, indent=2, default=custom_serializer, ensure_ascii=False)
+        # Format the results as 'name_genre'
+        manga_info = [f"{name}_{genre}" for name, genre in manga_info]
 
-        # Verificar la longitud del JSON y recortar si es necesario
-        while len(book_info_json) > 985:
-            # Remover el último objeto de la lista
-            book_info.pop()
-            # Convertir nuevamente la lista de objetos a una cadena JSON
-            book_info_json = json.dumps(book_info, indent=2, default=custom_serializer, ensure_ascii=False)
+        # Join the results into a single string, separated by commas
+        manga_info_str = ",".join(manga_info)
 
-        return book_info_json
-
+        return manga_info_str
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return False
-
 
 class Get_Inventory(Soa_Service):
     # ACA SE HACE LA MAGIA XD
