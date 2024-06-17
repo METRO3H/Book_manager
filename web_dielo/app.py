@@ -1,12 +1,10 @@
+import json
 from flask import Flask, request, render_template, redirect, url_for, session
 import socket
 import os
 import sys
-<<<<<<< HEAD
-=======
 from pdf2image import convert_from_path
 from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image
->>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
 
 # Añadir el directorio padre al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -70,8 +68,6 @@ def login():
 
 @app.route('/admin')
 def admin():
-<<<<<<< HEAD
-=======
     service_name = "getcd"
     send_message(service_name, "")
     response = receive_message()[7:]
@@ -88,18 +84,10 @@ def admin():
         if pdf_path:
             image_path = convert_pdf_to_image(pdf_path, image_dir)
             mangas.append({'name': name, 'promo': promo, 'image': image_path})
->>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
     return render_template('admin.html')
 
 @app.route('/home')
 def home():
-<<<<<<< HEAD
-    service_name = "getcd"  # Nombre del servicio para obtener el contenido destacado
-    send_message(service_name, "")
-    response = receive_message()[7:]
-    featured_content = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
-    return render_template('home.html', featured_content = featured_content)
-=======
     service_name = "getcd"
     send_message(service_name, "")
     response = receive_message()[7:]
@@ -128,20 +116,16 @@ def home():
             mangas.append({'name': name, 'promo': promo, 'image': image_path})
 
     return render_template('home.html', mangas=mangas)
->>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
 
 @app.route('/catalogo')
 def catalogo():
     service_name = "get_i"  # Nombre del servicio para obtener el contenido destacado
     send_message(service_name, "all")
     response = receive_message()[7:]
-<<<<<<< HEAD
-    mangas = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
-    return render_template('catalogo.html', mangas = mangas)
-=======
     mangas = [manga.split('_') for manga in response.split(',')]
+    print(mangas)
+    
     return render_template('catalogo.html', mangas=mangas)
->>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
 
 @app.route('/buscar-mangas', methods=['POST'])
 def buscarmanga():
@@ -160,8 +144,6 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
-<<<<<<< HEAD
-=======
 @app.route('/deseados')
 def deseados():
     user_id = session['user_id']  # Get the user id from the session
@@ -176,6 +158,13 @@ def deseados():
     mangas = [{'name': manga.split(',')[0].strip(" '()"), 'price': float(manga.split(',')[1].strip(" '()"))} for manga in response.split('), (')]
     return render_template('deseados.html', mangas=mangas)
 
->>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
+@app.route('/manga/<int:ID>')
+def manga_page(ID):
+    service_name = "get_i"
+    send_message(service_name, str(ID))
+    response = json.loads(receive_message()[7:])
+    print(response)
+    return render_template('manga_page.html',manga_info=response, title=response["title"])
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras
