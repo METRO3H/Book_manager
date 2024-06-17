@@ -228,7 +228,7 @@ def upload_file():
 @app.route('/notificar')
 def notificar():
     service_name = "notif"
-    send_message(service_name, "")
+    send_message(service_name, "Mangas que estan en destacados")
     return redirect(url_for('admin'))
 
 
