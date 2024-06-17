@@ -20,6 +20,12 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 bus_address = ('localhost', 5000)
 sock.connect(bus_address)
 
+# directorio de subida de archivos
+UPLOAD_FOLDER = '../mangas'
+ALLOWED_EXTENSIONS = {'pdf'}  # adjust as needed
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 def send_message(service, data):
     response_length = len(service) + len(data)
@@ -39,7 +45,8 @@ def receive_message():
     data = data.decode('utf-8')
     return data
 
-def get_mangas_destacados():
+# Obtener los mangas de contenido destacado
+def get_mangas():
     service_name = "getcd"
     send_message(service_name, "")
     response = receive_message()[7:]
@@ -62,6 +69,47 @@ def get_mangas_destacados():
                 image_path = f"{name}.pdf.png"
             mangas.append({'name': name, 'promo': promo, 'image': image_path})
     return mangas
+
+# Obtener todos los mangas
+def get_mangas_todos():
+    service_name = "get_i"
+    send_message(service_name, "all")
+    response = receive_message()[7:]
+    mangas = [manga.split('_') for manga in response.split(',')]
+    mangas_names = [manga[0] for manga in mangas]
+    print(mangas_names)
+    
+    # search the images of the mangas titles in the directory or create them if they don't exist
+    image_dir = './static/images'  # Directory to save images
+    os.makedirs(image_dir, exist_ok=True)
+    manga_info = []  # New list for storing dictionaries
+    for manga_name in mangas_names:
+        pdf_path = search_pdfs(manga_name, '../mangas')
+        if pdf_path:
+            # Create the image path
+            image_path = os.path.join(image_dir, f"{manga_name}.pdf.png")
+            # Check if the image already exists
+            if not os.path.exists(image_path):
+                # If the image does not exist, convert the PDF to an image
+                image_path = convert_pdf_to_image(pdf_path, image_dir)
+            else:
+                image_path = f"{manga_name}.pdf.png"
+                
+            manga_info.append({'name': manga_name, 'image': image_path})  # Append to manga_info instead of mangas
+
+    return manga_info  # Return manga_info instead of mangas
+
+# chequear extension archivo
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# chequear existencia archivo, si esta, no subir con False
+def check_file_inFolder(file):
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        if filename == file.filename:
+            return False
+    return True
 
 @app.route('/')
 def index():
@@ -112,8 +160,9 @@ def registro():
 
 @app.route('/admin')
 def admin():
-    mangas = get_mangas()
-    return render_template('admin.html', mangas=mangas)
+    #mangas = get_mangas()
+    mangastodos = get_mangas_todos()
+    return render_template('admin.html', mangas=mangastodos)
 
 @app.route('/home')
 def home():
@@ -159,26 +208,26 @@ def deseados():
     mangas = [{'name': manga.split(',')[0].strip(" '()"), 'price': float(manga.split(',')[1].strip(" '()"))} for manga in response.split('), (')]
     return render_template('deseados.html', mangas=mangas)
 
-
-UPLOAD_FOLDER = '../mangas'
-ALLOWED_EXTENSIONS = {'pdf'}  # adjust as needed
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        return redirect(url_for('admin'))  # replace 'admin' with the route for your admin page
+    service_name = "ins_i"
+    genre = request.form['genre']
     file = request.files['file']
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        add_item(request.form['title'], request.form['author'], request.form['genre'], filename)
-    return redirect(url_for('admin'))  # replace 'admin' with the route for your admin page
+    title = file.filename
+
+    if check_file_inFolder(file) and allowed_file(file.filename):
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+        input_data = f"VALUES ('{title}', '{genre}', 'PDF', 'Unknown', CURRENT_DATE, 0, 0, 0.00, FALSE, 0);"
+        send_message(service_name, input_data)
+        return redirect(url_for('admin'))
+    
+    return redirect(url_for('admin'))
+
+@app.route('/notificar')
+def notificar():
+    service_name = "notif"
+    send_message(service_name, "")
+    return redirect(url_for('admin'))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras
