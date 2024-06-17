@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">libreria</a></li>
+            <li><a href="#">carrito</a></li>
+            <li class="login"><a href="#">Login</a></li>
+            <li class="upload"><a href="#" onclick="document.getElementById('uploadModal').style.display='block'">Upload</a></li>
+        </ul>
+    </nav>
+    <h1>Welcome to My Manga Online Bookstore</h1>
+    <div id="highlightContent">
+        <!-- Add your highlight content here in a 3x3 grid -->
+    </div>
+    <div id="uploadModal" class="modal">
+        <form class="modal-content">
+            <h1>Upload File</h1>
+            <input type="file" id="file" name="file">
+            <input type="text" id="text1" name="text1">
+            <input type="text" id="text2" name="text2">
+            <input type="text" id="text3" name="text3">
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

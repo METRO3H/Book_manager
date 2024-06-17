@@ -2,12 +2,46 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+<<<<<<< HEAD
+=======
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
     <title>Bienvenido a la biblioteca de manga virtual</title>
+>>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
 </head>
 <body>
     <nav>
         <ul>
+<<<<<<< HEAD
+            <li><div id="uploadModal" class="modal">
+                <form class="modal-content">
+                    <h1>Upload File</h1>
+                    <input type="file" id="file" name="file">
+                    <button type="submit">Submit</button>
+                </form>
+            </div></li>
+            <li><a href="#">libreria</a></li>
+            <li><a href="#">carrito</a></li>
+            <form action="/logout"><li><button type="submit">Cerrar sesión</button></li></form>
+            <li class="upload"><a href="#" onclick="document.getElementById('uploadModal').style.display='block'">Upload</a></li>
+        </ul>
+    </nav>
+    <h1>Welcome to My Manga Online Bookstore</h1>
+    <div id="highlightContent">
+        <!-- Add your highlight content here in a 3x3 grid -->
+    </div>
+    <!--div id="uploadModal" class="modal">
+        <form class="modal-content">
+            <h1>Upload File</h1>
+            <input type="file" id="file" name="file">
+            <input type="text" id="text1" name="text1">
+            <input type="text" id="text2" name="text2">
+            <input type="text" id="text3" name="text3">
+            <button type="submit">Submit</button>
+        </form>
+    </div-->
+</body>
+</html>
+=======
             <li><form action="/deseados"><button type="submit">Lista de Deseados</button></form></li>
             <li><form action="/catalogo"><button type="submit">Catálogo de mangas</button></form></li>
             <li><form action="/logout"><button type="submit">Cerrar sesión</button></form></li>
@@ -42,3 +76,4 @@
     </div>
 </body>
 </html>
+>>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4

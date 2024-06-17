@@ -1,9 +1,16 @@
+<<<<<<< HEAD
+# SI TIENE VERSION ANTIGUA
+
+    sudo docker stop my_postgres_container
+    sudo docker rmi -f ID_DE_LA_IMAGEN_PSQL_OLD
+=======
 
 # Iniciar servidor con carpeta web dielo 
 revisar dependencias en el py antes para evitar problemas
     
     
     sudo python3 app.py
+>>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
     
 # Ejecutar la base de datos Postgres con Docker y EL BUS SOA
 (dentro de carpeta docker compose)
