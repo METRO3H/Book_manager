@@ -44,10 +44,13 @@ def login():
     contraseña = request.form['password']
     input_data = correo + "_" + contraseña
     service_name = "log_i"
-    print("correo:", correo)
+    # print("correo:", correo)
     send_message(service_name, input_data)
     response = receive_message()[7:]
-    if "success" in response:  # Esta condición depende de tu lógica de autenticación
+
+    if "admin" in response:
+        return redirect(url_for('admin'))
+    elif "success" in response:  # Esta condición depende de tu lógica de autenticación
         return redirect(url_for('home'))  # Redirigir a una página de éxito
     else:
         return render_template('login.html', error="Correo o contraseña incorrecta")
@@ -59,6 +62,22 @@ def home():
     response = receive_message()[7:]
     featured_content = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
     return render_template('home.html', featured_content=featured_content)
+
+@app.route('/catalogo')
+def catalogo():
+    service_name = "get_i"  # Nombre del servicio para obtener el contenido destacado
+    send_message(service_name, "all")
+    response = receive_message()[7:]
+    mangas = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
+    return render_template('catalogo.html', mangas=mangas)
+
+@app.route('/buscar-mangas', methods=['POST'])
+def buscarmanga():
+    service_name = "get_i"  # Nombre del servicio para obtener el contenido destacado
+    send_message(service_name, "all")
+    response = receive_message()[7:]
+    mangas = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
+    return render_template('catalogo.html', mangas=mangas)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras
