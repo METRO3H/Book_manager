@@ -78,7 +78,7 @@ def get_mangas_todos():
     send_message(service_name, "all")
     response = receive_message()[7:]
     mangas = [manga.split('_') for manga in response.split(',')]
-    mangas_names = [manga[0] for manga in mangas]
+    mangas_names = [manga[1] for manga in mangas]
     print(mangas_names)
     
     # search the images of the mangas titles in the directory or create them if they don't exist
