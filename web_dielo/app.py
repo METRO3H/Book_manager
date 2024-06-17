@@ -21,6 +21,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 bus_address = ('localhost', 5000)
 sock.connect(bus_address)
 
+
 def send_message(service, data):
     response_length = len(service) + len(data)
     response_length = str(response_length).zfill(5)
@@ -39,6 +40,30 @@ def receive_message():
     data = data.decode('utf-8')
     return data
 
+def get_mangas_destacados():
+    service_name = "getcd"
+    send_message(service_name, "")
+    response = receive_message()[7:]
+
+    featured_content = extract_manga_names(response)
+    image_dir = './static/images'  # Directory to save images
+    os.makedirs(image_dir, exist_ok=True)
+
+    mangas = []
+    for name, promo in featured_content:
+        pdf_path = search_pdfs(name, '../mangas')
+        if pdf_path:
+            # Create the image path
+            image_path = os.path.join(image_dir, f"{name}.pdf.png")
+            # Check if the image already exists
+            if not os.path.exists(image_path):
+                # If the image does not exist, convert the PDF to an image
+                image_path = convert_pdf_to_image(pdf_path, image_dir)
+            else:
+                image_path = f"{name}.pdf.png"
+            mangas.append({'name': name, 'promo': promo, 'image': image_path})
+    return mangas
+
 @app.route('/')
 def index():
     return render_template('login.html')
@@ -55,39 +80,51 @@ def login():
     user_id = datos[0]
     rol = datos[1]
 
-    if "admin" in response:
+    if "admin" in rol:
         session['user_id'] = user_id
         session['rol'] = rol
         return redirect(url_for('admin'))
-    elif "customer" in response:
+    elif "customer" in rol:
+        session['user_id'] = user_id
+        session['rol'] = rol
+        return redirect(url_for('home'))
+    elif "user" in rol:
         session['user_id'] = user_id
         session['rol'] = rol
         return redirect(url_for('home'))
     else:
         return render_template('login.html', error="Correo o contraseña incorrecta")
 
-@app.route('/admin')
-def admin():
-    service_name = "getcd"
-    send_message(service_name, "")
+@app.route('/registrarse')
+def registrarse():
+    return render_template('register.html')
+
+@app.route('/registro', methods=['POST'])
+def registro():
+    usuario = request.form['user']
+    correo = request.form['email']
+    contraseña = request.form['password']
+    input_data = usuario + "_" + correo + "_" + contraseña
+    service_name = "reg_i"
+    send_message(service_name, input_data)
     response = receive_message()[7:]
 
-    print(extract_manga_names(response))
+    return render_template('login.html')
 
-    featured_content = extract_manga_names(response)
-    image_dir = './static/images'  # Directory to save images
-    os.makedirs(image_dir, exist_ok=True)
-
-    mangas = []
-    for name, promo in featured_content:
-        pdf_path = search_pdfs(name, '../mangas')
-        if pdf_path:
-            image_path = convert_pdf_to_image(pdf_path, image_dir)
-            mangas.append({'name': name, 'promo': promo, 'image': image_path})
-    return render_template('admin.html')
+@app.route('/admin')
+def admin():
+    mangas = get_mangas()
+    return render_template('admin.html', mangas=mangas)
 
 @app.route('/home')
 def home():
+<<<<<<< HEAD
+    service_name = "getcd"  # Nombre del servicio para obtener el contenido destacado
+    send_message(service_name, "")
+    response = receive_message()[7:]
+    featured_content = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
+    return render_template('home.html', featured_content = featured_content)
+=======
     service_name = "getcd"
     send_message(service_name, "")
     response = receive_message()[7:]
@@ -158,13 +195,6 @@ def deseados():
     mangas = [{'name': manga.split(',')[0].strip(" '()"), 'price': float(manga.split(',')[1].strip(" '()"))} for manga in response.split('), (')]
     return render_template('deseados.html', mangas=mangas)
 
-@app.route('/manga/<int:ID>')
-def manga_page(ID):
-    service_name = "get_i"
-    send_message(service_name, str(ID))
-    response = json.loads(receive_message()[7:])
-    print(response)
-    return render_template('manga_page.html',manga_info=response, title=response["title"])
-
+>>>>>>> 2bd06ab6ce5f90bbd23ccd859820bbb7aa5c70c4
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras

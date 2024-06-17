@@ -2,6 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
     <title>Bienvenido a la biblioteca de manga virtual</title>
 </head>
@@ -11,29 +12,26 @@
             <li><form action="/deseados"><button type="submit">Lista de Deseados</button></form></li>
             <li><form action="/catalogo"><button type="submit">Catálogo de mangas</button></form></li>
             <li><form action="/logout"><button type="submit">Cerrar sesión</button></form></li>
-            <li><button type="button" onclick="document.getElementById('uploadModal')">Subir Manga</button></li>
+            <li><button type="button" onclick="document.getElementById('uploadModal').style.display='block'">Subir Manga</button></li>
         </ul>
     </nav>
     <br>
     <h2>Destacados</h2>
-    <form action="/destacados" method="get">
-        <div id="highlightContent" class="grid-container">
-            {% for manga in mangas %}
-                <div class="grid-item">
-                    <h3>{{ manga.name }}</h3>
-                    <p>{{ manga.promo }}</p>
-                    <img src="{{ url_for('static', filename='images/' + manga.image) }}" alt="{{ manga.name }} cover">
-                </div>
-            {% endfor %}
-        </div>
-    </form>
+    <div id="highlightContent" class="grid-container">
+        {% for manga in mangas %}
+            <div class="grid-item">
+                <h3>{{ manga.name }}</h3>
+                <p>{{ manga.promo }}</p>
+                <img src="{{ url_for('static', filename='images/' + manga.image) }}" alt="{{ manga.name }} cover">
+            </div>
+        {% endfor %}
+    </div>
 
     <!-- Upload Modal -->
     <div id="uploadModal" class="modal">
         <form class="modal-content" action="/upload" method="post" enctype="multipart/form-data">
             <h1>Subir Manga</h1>
             <input type="file" id="file" name="file" required>
-            <input type="text" id="text1" name="title" placeholder="Title" required>
             <input type="text" id="text2" name="author" placeholder="Author" required>
             <input type="text" id="text3" name="genre" placeholder="Genre" required>
             <button type="submit">Submit</button>
