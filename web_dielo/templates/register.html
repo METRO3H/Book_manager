@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/register.css') }}">
+    <title>Bienvenido</title>
+</head>
+<body>
+    <h1>Biblioteca Virtual de Manga</h1>
+    <br>
+    <h2>Registro de nuevo usuario</h2>
+    <div class="register">
+        <form action="/registro" method="post">
+            <br>
+            <label for="user">Usuario:</label><br>
+            <input type="text" id="user" name="user" required><br>
+            <label for="email">Correo:</label><br>
+            <input type="email" id="email" name="email" required><br>
+            <label for="password">Contraseña:</label><br>
+            <input type="password" id="password" name="password" required><br><br>
+            <button id="register" type="submit">Enviar</button>
+        </form>
+    </div>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+</body>
+</html>

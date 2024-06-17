@@ -64,6 +64,22 @@ def login():
     else:
         return render_template('login.html', error="Correo o contraseña incorrecta")
 
+@app.route('/registrarse')
+def registrarse():
+    return render_template('register.html')
+
+@app.route('/registro', methods=['POST'])
+def registro():
+    usuario = request.form['user']
+    correo = request.form['email']
+    contraseña = request.form['password']
+    input_data = usuario + "_" + correo + "_" + contraseña
+    service_name = "reg_i"
+    send_message(service_name, input_data)
+    response = receive_message()[7:]
+
+    return render_template('login.html', response, error="Usuario ya existente")
+
 @app.route('/admin')
 def admin():
     service_name = "getcd"
@@ -120,7 +136,11 @@ def catalogo():
     servicename = "get_i"  # Nombre del servicio para obtener el contenido destacado
     send_message(service_name, "all")
     response = receive_message()[7:]
+<<<<<<< HEAD
     mangas = [manga.split('') for manga in response.split(',')]
+=======
+    mangas = [manga.split('_') for manga in response.split(',')]
+>>>>>>> 51d0e739fd18ccdf33453bbded525fb10a8dab40
     return render_template('catalogo.html', mangas=mangas)
 
 @app.route('/buscar-mangas', methods=['POST'])
