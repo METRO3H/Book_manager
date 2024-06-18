@@ -31,9 +31,9 @@
           </div>
           
           <hr/>
-          <div id="button-container">
+          <a href="{{ url_for('serve_manga', filename=manga_info.title + '.pdf') }}" download>
             <button id="download-button" class="btn btn-dark">Descargar</button>
-          </div>
+          </a>
           
         </div>
       </div>

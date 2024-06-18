@@ -232,13 +232,31 @@ def notificar():
     return redirect(url_for('admin'))
 
 
+
 @app.route('/manga/<int:ID>')
 def manga_page(ID):
     service_name = "get_i"
     send_message(service_name, str(ID))
     response = json.loads(receive_message()[7:])
     print(response)
+    # use the manga title to search the image in the directory of static/images and append it to the response
+    image_dir = './static/images'
+    image_path = os.path.join(image_dir, f"{response['title']}.pdf.png")
+    if not os.path.exists(image_path):
+        # If the image does not exist, convert the PDF to an image
+        image_path = convert_pdf_to_image(response['path'], image_dir)
+    else:
+        image_path = f"{response['title']}.pdf.png"
+    response['image'] = image_path
     return render_template('manga_page.html',manga_info=response, title=response["title"])
+
+from flask import send_from_directory
+
+#here the manga will be sent to the user
+@app.route('/mangas/<path:filename>')
+def serve_manga(filename):
+    return send_from_directory('../mangas', filename)
+     
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras
