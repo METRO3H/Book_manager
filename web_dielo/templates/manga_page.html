@@ -20,7 +20,7 @@
     {% include 'navbar.html' %}
     <div id="main-container">
       <div id="manga-card">
-        <img src="" id="manga-image" alt="" />
+        <img src="{{ manga_info.image }}" id="manga-image" alt="{{ manga_info.title }}" />
         <div id="manga-info">
           <div id="manga-meta">
             <h1 id="title">{{ manga_info.title}}</h1>
