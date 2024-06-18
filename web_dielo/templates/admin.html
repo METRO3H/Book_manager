@@ -8,14 +8,13 @@
 <body>
     <nav>
         <ul>
-            <li><form action="/deseados"><button type="submit">Lista de Deseados</button></form></li>
-            <li><form action="/catalogo"><button type="submit">Catálogo de mangas</button></form></li>
             <li><form action="/logout"><button type="submit">Cerrar sesión</button></form></li>
+            <li><form action="/notificar"><button type="submit">Notificar contenido destacado</button></form></li>
             <li><button type="button" onclick="document.getElementById('uploadModal').style.display='block'">Subir Manga</button></li>
         </ul>
     </nav>
     <br>
-    <h2>Destacados</h2>
+    <h2>Todos los Mangas</h2>
     <div id="highlightContent" class="grid-container">
         {% for manga in mangas %}
             <div class="grid-item">
@@ -31,9 +30,7 @@
         <form class="modal-content" action="/upload" method="post" enctype="multipart/form-data">
             <h1>Subir Manga</h1>
             <input type="file" id="file" name="file" required>
-            <input type="text" id="text1" name="title" placeholder="Title" required>
-            <input type="text" id="text2" name="author" placeholder="Author" required>
-            <input type="text" id="text3" name="genre" placeholder="Genre" required>
+            <input type="text" id="text" name="genre" placeholder="Genre" required>
             <button type="submit">Submit</button>
             <button type="button" onclick="document.getElementById('uploadModal').style.display='none'">Close</button>
         </form>

@@ -75,7 +75,7 @@ def Get_All():
 
         # Execute SQL query to select manga names and genres
         query = """--sql
-         SELECT title, genre FROM manga;
+         SELECT id, title, genre FROM manga;
         """
         cur.execute(query)
 
@@ -90,7 +90,7 @@ def Get_All():
             return False
 
         # Format the results as 'name_genre'
-        manga_info = [f"{name}_{genre}" for name, genre in manga_info]
+        manga_info = [f"{id}_{name}_{genre}" for id, name, genre in manga_info]
 
         # Join the results into a single string, separated by commas
         manga_info_str = ",".join(manga_info)
@@ -116,7 +116,7 @@ class Get_Inventory(Soa_Service):
             book_info = Get_All()
         else:
             book_info = Get_Book(request)
-        
+            print(book_info)
         
         if book_info is False:
             response = "Ocurrió un error"

@@ -87,37 +87,58 @@ def buscar_mangas_destacados():
         return []
 
 # Función para obtener el correo de un usuario por ID
-def obtener_correo_usuario(usuario_id):
+def obterner_correo_usuario(usuario_id):
     try:
         with conectar_bd() as conn:
             with conn.cursor() as cur:
                 consulta = "SELECT email FROM users WHERE id = %s;"
                 cur.execute(consulta, (usuario_id,))
                 resultado = cur.fetchone()
-                if resultado:
-                    return resultado[0]
-                else:
-                    return None
+                return resultado[0] if resultado else None
     except Exception as e:
-        print(f"Error al obtener correo del usuario: {e}")
-        return None
-
+        print(f"Error al obtener el correo del usuario: {e}")
+        return
+    
+def obtener_correo_usuarios():
+    try:
+        with conectar_bd() as conn:
+            with conn.cursor() as cur:
+                consulta = "SELECT email FROM users;"
+                cur.execute(consulta)
+                resultado = cur.fetchall()
+                return [email[0] for email in resultado]
+    except Exception as e:
+        print(f"Error al obtener correos de los usuarios: {e}")
+        return []
+    
 # Clase para el servicio personalizado
 class CustomService(Soa_Service):
     def process_data(self, request):
         global service_name
         load_dotenv()
-        datos = request.split(" ", 1)
-        usuario_id = datos[0] 
-        asunto = datos[1]  
-        destinatario = obtener_correo_usuario(usuario_id)
 
-        if not destinatario:
+        # si el mensaje no inicia con un numero, se asume que es un mensaje para todos los usuarios
+        if not request[0].isdigit():
+            destinatarios = obtener_correo_usuarios()
+            asunto = request
+
+        else:
+            usuario_id = request[0]
+            # obtener el asunto que es todo el texto que sigue despues del id
+            asunto = request[1:]
+            destinatarios = [obterner_correo_usuario(usuario_id)]
+
+        print(f"Destinatarios: {destinatarios}")
+        if not destinatarios:
             print(f"No se encontró el correo para el usuario con ID {usuario_id}")
             return service_name, "No se encontró el correo del usuario"
 
         remitente = "correodetareas11.9@gmail.com"
+<<<<<<< HEAD
         contraseña = "otxm trlz hnvd wlxk"
+=======
+        contraseña = 'otxm trlz hnvd wlxk'
+>>>>>>> 20898ed955cbc10d35bb778faa864c1afa9cf77f
         cuerpo = ""
 
         if asunto == "Mangas estrenados este mes": # Asunto 1
@@ -142,7 +163,9 @@ class CustomService(Soa_Service):
         # destinatario1 = "correodetareas11.9@gmail.com"
         # Y reemplazar en enviar_correo por destinatario => destinatario1
         # Llamar a la función para enviar correo con OAuth2 y la API de Gmail
-        enviar_correo(remitente, destinatario, asunto, cuerpo, contraseña)
+       # Enviar correo a cada destinatario
+        for destinatario in destinatarios:
+            enviar_correo(remitente, destinatario, asunto, cuerpo, contraseña)
 
         return service_name, "Correo enviado satisfactoriamente"
 
