@@ -247,7 +247,7 @@ def manga_page(ID):
         image_path = convert_pdf_to_image(response['path'], image_dir)
     else:
         image_path = f"{response['title']}.pdf.png"
-    response['image'] = image_path
+    response['image'] = url_for('static', filename='images/' + image_path)
     return render_template('manga_page.html',manga_info=response, title=response["title"])
 
 from flask import send_from_directory

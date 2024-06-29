@@ -134,11 +134,7 @@ class CustomService(Soa_Service):
             return service_name, "No se encontró el correo del usuario"
 
         remitente = "correodetareas11.9@gmail.com"
-<<<<<<< HEAD
         contraseña = "otxm trlz hnvd wlxk"
-=======
-        contraseña = 'otxm trlz hnvd wlxk'
->>>>>>> 20898ed955cbc10d35bb778faa864c1afa9cf77f
         cuerpo = ""
 
         if asunto == "Mangas estrenados este mes": # Asunto 1
