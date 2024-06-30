@@ -20,23 +20,33 @@ def add_user(username, email, password, role):
         
         # Get the current timestamp
         created_at = datetime.now()
+
+        queryEmail = "SELECT * FROM users WHERE email = %s"
+        value = (email,)
+
+        try:
+            cur.execute(queryEmail, value)
+            result = cur.fetchone()
+            if result:
+                return "El correo ya se encuentra en uso"
+            else:
+                query = """
+                    INSERT INTO users (username, email, password, role, created_at)
+                    VALUES (%s, %s, %s, %s, %s)
+                """
+                values = (username, email, password, role, created_at)
+                cur.execute(query, values)
+                
+                # Commit the transaction
+                conn.commit()
         
-        # Execute SQL query to add user
-        query = """
-            INSERT INTO users (username, email, password, role, created_at)
-            VALUES (%s, %s, %s, %s, %s)
-        """
-        values = (username, email, password, role, created_at)
-        cur.execute(query, values)
-        
-        # Commit the transaction
-        conn.commit()
-        
-        # Close cursor and connection
-        cur.close()
-        conn.close()
+        finally:
+            # Close cursor and connection
+            cur.close()
+            conn.close()
 
         return "The user: " + username + " was added successfully."
+              
     except Exception as e:
         return f"An error occurred: {str(e)}"
 

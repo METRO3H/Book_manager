@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, send_from_directory
 import socket
 import json
 import os
@@ -6,14 +6,15 @@ import sys
 from pdf2image import convert_from_path
 from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image
 
-
 # Añadir el directorio padre al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from util.color import color
 from util.list_of_services import service
 
+# Definir la iniciación para la web
 app = Flask(__name__)
+
 # Definir la clave secreta
 app.secret_key = 'cotrofroto'
 
@@ -27,7 +28,6 @@ UPLOAD_FOLDER = '../mangas'
 ALLOWED_EXTENSIONS = {'pdf'}  # adjust as needed
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 def send_message(service, data):
     response_length = len(service) + len(data)
@@ -117,6 +117,10 @@ def check_file_inFolder(file):
 def index():
     return render_template('login.html')
 
+@app.route('/logeo')
+def logeo():
+    return render_template('login.html')
+
 @app.route('/login', methods=['POST'])
 def login():
     correo = request.form['email']
@@ -126,21 +130,23 @@ def login():
     send_message(service_name, input_data)
     response = receive_message()[7:]
     datos = response.split(" ",1)
-    user_id = datos[0]
-    rol = datos[1]
-
-    if "admin" in rol:
-        session['user_id'] = user_id
-        session['rol'] = rol
-        return redirect(url_for('admin'))
-    elif "customer" in rol:
-        session['user_id'] = user_id
-        session['rol'] = rol
-        return redirect(url_for('home'))
-    elif "user" in rol:
-        session['user_id'] = user_id
-        session['rol'] = rol
-        return redirect(url_for('home'))
+    
+    if len(datos) == 2:
+        # La lista tiene dos partes
+        user_id = datos[0]
+        rol = datos[1]
+        if "admin" in rol:
+            session['user_id'] = user_id
+            session['rol'] = rol
+            return redirect(url_for('admin'))
+        elif "customer" in rol:
+            session['user_id'] = user_id
+            session['rol'] = rol
+            return redirect(url_for('home'))
+        elif "user" in rol:
+            session['user_id'] = user_id
+            session['rol'] = rol
+            return redirect(url_for('home'))
     else:
         return render_template('login.html', error="Correo o contraseña incorrecta")
 
@@ -157,8 +163,12 @@ def registro():
     service_name = "reg_i"
     send_message(service_name, input_data)
     response = receive_message()[7:]
-
-    return render_template('login.html')
+    if response == f"The user: {usuario} was added successfully.":
+        return render_template('login.html')
+    elif response == "El correo ya se encuentra en uso":
+        return render_template('register.html', error="El correo ya se encuentra en uso")
+    else:
+        return render_template('register.html', error="Error al registrar un nuevo usuario")
 
 @app.route('/admin')
 def admin():
@@ -168,8 +178,9 @@ def admin():
 
 @app.route('/home')
 def home():
+    message = request.args.get('message')
     mangas = get_mangas()
-    return render_template('home.html', mangas=mangas)
+    return render_template('home.html', mangas=mangas, message=message)
 
 @app.route('/catalogo')
 def catalogo():
@@ -202,13 +213,12 @@ def deseados():
     service_name = "getwl"  # Nombre del servicio para obtener el contenido destacado
     send_message(service_name, user_id)
     response = receive_message()[7:]
-    #si no tiene mangas deseados
-    if response == "No hay mangas deseados":
-        return render_template('deseados.html', mangas=[])
-    # the format is like (manga1,price), (manga2,price), ...
-    response = response.strip("[]")
-    mangas = [{'name': manga.split(',')[0].strip(" '()"), 'price': float(manga.split(',')[1].strip(" '()"))} for manga in response.split('), (')]
-    return render_template('deseados.html', mangas=mangas)
+    if response == "No hay mangas deseados" or response == "[]":
+        return redirect(url_for('home', message='No hay mangas en la lista de deseados'))
+    else:
+        response = response.strip("[]")
+        mangas = [{'name': manga.split(',')[0].strip(" '()"), 'price': float(manga.split(',')[1].strip(" '()"))} for manga in response.split('), (')]
+        return render_template('deseados.html', mangas=mangas)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -216,13 +226,11 @@ def upload_file():
     genre = request.form['genre']
     file = request.files['file']
     title = file.filename
-
     if check_file_inFolder(file) and allowed_file(file.filename):
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
         input_data = f"VALUES ('{title}', '{genre}', 'PDF', 'Unknown', CURRENT_DATE, 0, 0, 0.00, FALSE, 0);"
         send_message(service_name, input_data)
         return redirect(url_for('admin'))
-    
     return redirect(url_for('admin'))
 
 @app.route('/notificar')
@@ -231,9 +239,7 @@ def notificar():
     send_message(service_name, "Mangas que estan en destacados")
     return redirect(url_for('admin'))
 
-
-
-@app.route('/manga/<int:ID>')
+@app.route('/manga/<ID>')
 def manga_page(ID):
     service_name = "get_i"
     send_message(service_name, str(ID))
@@ -248,15 +254,31 @@ def manga_page(ID):
     else:
         image_path = f"{response['title']}.pdf.png"
     response['image'] = url_for('static', filename='images/' + image_path)
-    return render_template('manga_page.html',manga_info=response, title=response["title"])
+    reviews = get_reviews(ID)
+    return render_template('manga_page.html',manga_info=response, title=response["title"], reviews=reviews)
 
-from flask import send_from_directory
+def get_reviews(manga_id):
+    service_name="res_i"
+    #user_id = session['user_id']
+    #data_sent = f"{manga_id}_{user_id}"
+    send_message(service_name, manga_id)
+    reviews = receive_message()[7:]
+    return reviews
+
+@app.route('/add_review/<manga_id>', methods=['POST'])
+def add_review(manga_id):
+    review_text = request.form['review_text']
+    rating = int(request.form['rating'])
+    user_id = session['user_id']
+    service_name = "rev_i"
+    data_to_send = f"{user_id}_{manga_id}_{rating}_{review_text}"
+    send_message(service_name, data_to_send)
+    return redirect(url_for('manga_page', ID=manga_id))
 
 #here the manga will be sent to the user
 @app.route('/mangas/<path:filename>')
 def serve_manga(filename):
     return send_from_directory('../mangas', filename)
-     
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras

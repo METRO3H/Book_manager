@@ -53,3 +53,20 @@
     display: flex;
     align-items: center;
 }
+
+.reviewCard {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.reviewHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.reviewBody {
+    margin-bottom: 5px;
+}

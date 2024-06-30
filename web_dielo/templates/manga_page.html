@@ -34,7 +34,46 @@
           <a href="{{ url_for('serve_manga', filename=manga_info.title + '.pdf') }}" download>
             <button id="download-button" class="btn btn-dark">Descargar</button>
           </a>
+
+          <hr>
+          <div id="add-review">
+            <h3>Agregar una reseña</h3>
+            <form method="post" action="{{ url_for('add_review', manga_id=manga_info.id) }}">
+              <div class="mb-3">
+                <textarea class="form-control" name="review_text" placeholder="Escribe tu reseña aquí..." required></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="rating">Valoración (1-5):</label>
+                <select class="form-select" name="rating" id="rating" required>
+                  {% for i in range(1, 6) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Enviar Reseña</button>
+            </form>
+          </div>
           
+          <hr>
+          <div id="reviewContainer">
+            {% if reviews %}
+              {% for review in reviews %}
+                <div class="reviewCard">
+                  <div class="reviewHeader">
+                    <h4>{{ review.user }}</h4>
+                    <span>Valoración: {{ review.rating }}</span>
+                  </div>
+                  <div class="reviewBody">
+                    <p>{{ review.review_text }}</p>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+                <p>No hay reseñas todavía.</p>
+            {% endif %}
+          </div>
+        
+               
         </div>
       </div>
     </div>

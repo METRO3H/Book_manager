@@ -27,22 +27,30 @@ def get_review(manga_id, user_id=None):
             cur.execute(query, (manga_id, user_id))
         else:
             query = """
-                SELECT id, user_id, manga_id, rating, review_text FROM reviews 
+                SELECT user_id, rating, review_text FROM reviews 
                 WHERE manga_id = %s
             """
             cur.execute(query, (manga_id,))
 
         # Fetch all records
-        reviews = cur.fetchall()
+        reviews = []
+        for row in cur.fetchall():
+            user_id, rating, review_text = row
+            reviews.append({
+                'user': user_id,
+                'rating': rating,
+                'review_text': review_text
+            })
 
         # Close cursor and connection
         cur.close()
         conn.close()
 
         # Convert the list of reviews to a string
-        reviews_str = '\n'.join(map(str, reviews))
+        #reviews_str = '\n'.join(map(str, reviews))
 
-        return reviews_str
+        return reviews
+    
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
@@ -59,7 +67,7 @@ class CustomService(Soa_Service):
             # request to string
             request = str(request)
             return service_name, request
-        print('paso el if')
+        #print('paso el if')
 
         # Assign each part to a variable
         manga_id = data_parts[0]

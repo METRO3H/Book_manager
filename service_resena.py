@@ -59,6 +59,8 @@ class CustomService(Soa_Service):
 
         response = answer
         
+        print(response)
+        
         return service_name, response
 
 # Select the service to use

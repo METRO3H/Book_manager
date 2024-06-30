@@ -53,6 +53,21 @@ button#register:hover {
     background-color: #005bb5;
 }
 
+button#logeo {
+    margin-top: 10px;
+    background-color: #0073e6;
+    border: none;
+    padding:15px 20px;
+    color: #ffffff;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button#logeo:hover {
+    background-color: #005bb5;
+}
+
 /* Estilo para el mensaje de error */
 p {
     margin-top: 20px;
