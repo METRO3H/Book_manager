@@ -17,3 +17,4 @@ class service:
     get_estadisticas = "getes"
     notification = "notif"
     get_contenido_destacado = "getcd"
+    get_user = "getus"

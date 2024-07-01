@@ -188,15 +188,24 @@ def catalogo():
     send_message(service_name, "all")
     response = receive_message()[7:]
     mangas = [manga.split('_') for manga in response.split(',')]
+    # print info to send to html
+    print(mangas)
     return render_template('catalogo.html', mangas=mangas)
 
 @app.route('/buscar-mangas', methods=['POST'])
 def buscarmanga():
-    service_name = "get_i"  # Nombre del servicio para obtener el contenido destacado
+    keyword = request.form['search']  # Asumiendo que el campo de búsqueda en tu formulario HTML tiene el nombre 'search'
+    service_name = "get_i"
     send_message(service_name, "all")
     response = receive_message()[7:]
-    mangas = response.split(',')  # Suponiendo que el contenido destacado se envía como una lista separada por comas
-    return render_template('catalogo.html', manga = mangas)
+    mangas = response.split(',')  # Lista de mangas recibida del servicio
+    
+    # Filtrar mangas que contienen la palabra clave en su nombre
+    filtered_mangas = [manga for manga in mangas if keyword.lower() in manga.lower()]
+    # arreglar el formato de los mangas ya que solo se envian los nombres y el genero
+    filtered_mangas = [manga.split('_') for manga in filtered_mangas]
+    print(filtered_mangas)
+    return render_template('catalogo.html', mangas=filtered_mangas)
 
 @app.route('/logout')
 def logout():
@@ -213,12 +222,17 @@ def deseados():
     service_name = "getwl"  # Nombre del servicio para obtener el contenido destacado
     send_message(service_name, user_id)
     response = receive_message()[7:]
-    if response == "No hay mangas deseados" or response == "[]":
-        return redirect(url_for('home', message='No hay mangas en la lista de deseados'))
-    else:
+
+    if response:  # Check if response is not empty
         response = response.strip("[]")
-        mangas = [{'name': manga.split(',')[0].strip(" '()"), 'price': float(manga.split(',')[1].strip(" '()"))} for manga in response.split('), (')]
-        return render_template('deseados.html', mangas=mangas)
+        if response:  # Double check if response is not just "[]"
+            mangas = [{'name': manga.split(',')[0].strip(" '()"), 'price': float(manga.split(',')[1].strip(" '()"))} for manga in response.split('), (')]
+        else:
+            mangas = []  # Set mangas to an empty list if response is empty
+    else:
+        mangas = []  # Set mangas to an empty list if response is empty
+
+    return render_template('deseados.html', mangas=mangas)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -244,7 +258,6 @@ def manga_page(ID):
     service_name = "get_i"
     send_message(service_name, str(ID))
     response = json.loads(receive_message()[7:])
-    print(response)
     # use the manga title to search the image in the directory of static/images and append it to the response
     image_dir = './static/images'
     image_path = os.path.join(image_dir, f"{response['title']}.pdf.png")
@@ -257,22 +270,52 @@ def manga_page(ID):
     reviews = get_reviews(ID)
     return render_template('manga_page.html',manga_info=response, title=response["title"], reviews=reviews)
 
+def userid_to_username(user_id):
+    service_name = "getus"
+    send_message(service_name, user_id)
+    username = receive_message()[7:]
+    return username
+
 def get_reviews(manga_id):
-    service_name="res_i"
-    #user_id = session['user_id']
-    #data_sent = f"{manga_id}_{user_id}"
+    service_name = "res_i"
     send_message(service_name, manga_id)
     reviews = receive_message()[7:]
-    return reviews
+    
+    # reviews arrive like [{'user': 2, 'rating': 4, 'review_text': 'Great manga, but a bit too long.'}, {'user': 5, 'rating': 1, 'review_text': 'caca'}] now divide date into users not using json
+    reviews = reviews.split('}, {')
+    reviews = [review.strip('[]{}') for review in reviews]
+
+    for i in range(len(reviews)):
+        # print review user id
+        # print(reviews[i].split(',')[0].split(': ')[1])
+        # save review user id, rating and review text in a dictionary
+        reviews[i] = {
+            'user': userid_to_username(reviews[i].split(',')[0].split(': ')[1]),
+            'rating': reviews[i].split(',')[1].split(': ')[1],
+            'review_text': reviews[i].split(',')[2].split(': ')[1]
+        }
+    return reviews  # Devuelve la lista modificada de diccionarios
+
 
 @app.route('/add_review/<manga_id>', methods=['POST'])
 def add_review(manga_id):
-    review_text = request.form['review_text']
-    rating = int(request.form['rating'])
-    user_id = session['user_id']
-    service_name = "rev_i"
-    data_to_send = f"{user_id}_{manga_id}_{rating}_{review_text}"
-    send_message(service_name, data_to_send)
+    try:
+        review_text = request.form['review_text']
+        rating = int(request.form['rating'])
+        if not (1 <= rating <= 5):
+            raise ValueError("Rating must be between 1 and 5.")
+        user_id = session.get('user_id')
+        if not user_id:
+            raise ValueError("User not logged in.")
+        
+        service_name = "rev_i"
+        data_to_send = f"{user_id}_{manga_id}_{rating}_{review_text}"
+        send_message(service_name, data_to_send)
+    except Exception as e:
+        # Log the error and handle it, e.g., return an error message to the user
+        print(f"Error adding review: {e}")
+        return "An error occurred while adding your review.", 400
+    
     return redirect(url_for('manga_page', ID=manga_id))
 
 #here the manga will be sent to the user
@@ -281,5 +324,5 @@ def serve_manga(filename):
     return send_from_directory('../mangas', filename)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)  # Puedes cambiar 5001 al puerto que prefieras
+    app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses
     

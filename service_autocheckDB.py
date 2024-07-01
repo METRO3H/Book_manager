@@ -231,11 +231,113 @@ def check_and_add_mangas():
 
     print("Manga check and add completed.")
 
-if __name__ == "__main__":
+def check_and_delete_orphan_mangas():
+    print("Starting orphan manga check and deletion...")
+    try:
+        # Connect to your PostgreSQL database
+        print("Connecting to the database...")
+        conn = psycopg2.connect(
+            dbname=POSTGRES_DB,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT
+        )
+        cursor = conn.cursor()
 
+        # Fetch all manga titles and their IDs from the database
+        cursor.execute("SELECT title, id FROM manga;")
+        db_manga_titles_ids = cursor.fetchall()
+
+        # Get list of all manga files in the folder
+        manga_folder = "mangas"
+        manga_files = os.listdir(manga_folder)
+        manga_titles = [os.path.splitext(file)[0] for file in manga_files if file.endswith('.pdf')]
+
+        # Check and delete orphan mangas from the database
+        for db_title, db_id in db_manga_titles_ids:
+            print(f"Checking manga '{db_title}' in the database against the folder...")
+            if db_title not in manga_titles:
+                print(f"Manga '{db_title}' is in the database but the corresponding file is missing. Deleting...")
+                # Delete references in related tables
+                cursor.execute("DELETE FROM rentals WHERE manga_id = %s;", (db_id,))
+                cursor.execute("DELETE FROM sales WHERE manga_id = %s;", (db_id,))
+                cursor.execute("DELETE FROM reviews WHERE manga_id = %s;", (db_id,))
+                cursor.execute("DELETE FROM wishlist WHERE manga_id = %s;", (db_id,))
+                cursor.execute("DELETE FROM inventory_events WHERE manga_id = %s;", (db_id,))
+                cursor.execute("DELETE FROM highlighted_content WHERE manga_id = %s;", (db_id,))
+                # Finally, delete the manga from the 'manga' table
+                cursor.execute("DELETE FROM manga WHERE id = %s;", (db_id,))
+                conn.commit()
+                print("Deleted.")
+
+        # Close connection
+        print("Closing database connection...")
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"Error checking and deleting orphan mangas: {e}")
+
+    print("Orphan manga check and deletion completed.")
+
+
+def delete_duplicate_reviews():
+    print("Starting duplicate reviews deletion...")
+    try:
+        # Connect to your PostgreSQL database
+        print("Connecting to the database...")
+        conn = psycopg2.connect(
+            dbname=POSTGRES_DB,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT
+        )
+        cursor = conn.cursor()
+
+        # Find duplicate reviews
+        cursor.execute("""
+            SELECT user_id, manga_id
+            FROM reviews
+            GROUP BY user_id, manga_id
+            HAVING COUNT(id) > 1;
+        """)
+        duplicates = cursor.fetchall()
+
+        # For each duplicate, delete all but the most recent review
+        for user_id, manga_id in duplicates:
+            print(f"Deleting duplicates for user {user_id} and manga {manga_id}...")
+            cursor.execute("""
+                DELETE FROM reviews
+                WHERE id IN (
+                    SELECT id
+                    FROM reviews
+                    WHERE user_id = %s AND manga_id = %s
+                    ORDER BY created_at ASC
+                    LIMIT (SELECT COUNT(*) - 1 FROM reviews WHERE user_id = %s AND manga_id = %s)
+                );
+            """, (user_id, manga_id, user_id, manga_id))
+
+        # Commit changes
+        conn.commit()
+
+        # Close connection
+        print("Closing database connection...")
+        cursor.close()
+        conn.close()
+
+        print("Duplicate reviews deletion completed.")
+    except Exception as e:
+        print(f"Error deleting duplicate reviews: {e}")
+
+
+if __name__ == "__main__":
+    sleep(3)
     #loop every 5 minutes
     while True:
         
         check_and_fix_database_integrity()
         check_and_add_mangas()
+        check_and_delete_orphan_mangas()
+        delete_duplicate_reviews()
         sleep(300)

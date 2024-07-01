@@ -57,19 +57,19 @@
           <hr>
           <div id="reviewContainer">
             {% if reviews %}
+            <!-- Loop through all reviews -->
+            <div class="review">
+              <h3>Reseñas</h3>
+              <hr>
               {% for review in reviews %}
-                <div class="reviewCard">
-                  <div class="reviewHeader">
-                    <h4>{{ review.user }}</h4>
-                    <span>Valoración: {{ review.rating }}</span>
-                  </div>
-                  <div class="reviewBody">
-                    <p>{{ review.review_text }}</p>
-                  </div>
-                </div>
+              <div class="review-content">
+                <p><strong>User:</strong> {{ review.user }}</p>
+                <p><strong>Review:</strong> {{ review.review_text }}</p>
+                <p><strong>Rating:</strong> {{ review.rating }}</p>
+              </div>
+              <hr> <!-- Optional: Add a separator between reviews -->
               {% endfor %}
-            {% else %}
-                <p>No hay reseñas todavía.</p>
+            </div>
             {% endif %}
           </div>
         
@@ -77,6 +77,8 @@
         </div>
       </div>
     </div>
+
+    
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

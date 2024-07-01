@@ -4,22 +4,28 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    height: 100vh;
+    min-height: 100vh; /* Ensure it can grow beyond the viewport height if needed */
 }
+
 #manga-card{
     display: flex;
     width: 75%;
     padding: 25px;
-    height: 75%;
+    height: auto; /* Allows the card to grow with its content */
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    box-sizing: border-box;
+    overflow: visible; /* Adjust based on preference */
 }
 #manga-image{
-    aspect-ratio: 16/9;
-    width: 40%;
+    max-width: 35%; /* Ensures the image does not exceed the container's width */
+    max-height: 35%; /* Ensures the image does not exceed the container's height */
+    aspect-ratio: 16/9; /* Maintains the aspect ratio */
     border-radius: 15px;
-    background: grey;
+    background: rgb(255, 255, 255); /* Consider using background-size and background-position if using a background image */
+    object-fit: contain; /* Ensures the image fits within the container without stretching */
+    object-position: top; /* Aligns the image to the top of its container */
 }
+
 #manga-info{
     display: flex;
     flex-direction: column;
@@ -54,19 +60,26 @@
     align-items: center;
 }
 
-.reviewCard {
-    border: 1px solid #ccc;
+#reviewContainer {
+    margin: 20px;
+}
+
+.review {
+    border: 1px solid #cccccc;
     padding: 10px;
     margin-bottom: 10px;
 }
 
-.reviewHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.review-content {
     margin-bottom: 5px;
 }
 
-.reviewBody {
+.review-content p {
     margin-bottom: 5px;
+    line-height: 1.5;
 }
+
+.review-content p strong {
+    font-weight: bold;
+}
+
