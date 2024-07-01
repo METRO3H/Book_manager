@@ -2,11 +2,16 @@ import os
 from pdf2image import convert_from_path
 import socket
 import sys
+from time import sleep
 # Añadir el directorio padre al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from util.color import color
 from util.list_of_services import service
 
+# Configurar el socket y la dirección del bus
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+bus_address = ('localhost', 5000)
+sock.connect(bus_address)
 
 def extract_manga_names(response):
     entries = response.split('Manga: ')[1:]
@@ -28,11 +33,6 @@ def convert_pdf_to_image(pdf_path, output_dir):
     image_path = os.path.join(output_dir, image_filename)
     images[0].save(image_path, 'PNG')
     return image_filename  # Return only the filename
-
-# Configurar el socket y la dirección del bus
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-bus_address = ('localhost', 5000)
-sock.connect(bus_address)
 
 # comunicacion con servicios
 def send_message(service, data):

@@ -16,7 +16,6 @@ class Soa_Service:
         # print ('sending {!r}'.format (message.decode('utf-8')))
         self.sock.sendall (message)
         response = self.receive_message()[5:7]
-
         if response == "OK":
             print(color("grey", "--------------------------------------------------------------------"))
             print("\033[97;42m Service \033[0m", color("white", "Service"), color("blue",f"{service_name}") ,color("white", "is connected!"))

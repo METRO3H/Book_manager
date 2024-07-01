@@ -242,33 +242,28 @@ def get_reviews(manga_id):
     service_name = "res_i"
     send_message(service_name, manga_id)
     reviews = receive_message()[7:]
-    print('estos son')
-    print(reviews)
     # si ta vacio el review entonces retornar una lista vacia
     if reviews == "[]":
         return []
     
-    # reviews arrive like [{'user': 2, 'rating': 4, 'review_text': 'Great manga, but a bit too long.'}, {'user': 5, 'rating': 1, 'review_text': 'caca'}] now divide date into users not using json
+    # [{'user': 2, 'rating': 4, 'review_text': 'Great manga, but a bit too long.'}, {'user': 5, 'rating': 1, 'review_text': 'caca'}] now divide date into users not using json
     reviews = reviews.split('}, {')
     reviews = [review.strip('[]{}') for review in reviews]
-    
+    print(reviews)
     for i in range(len(reviews)):
-        # print review user id
-        # print(reviews[i].split(',')[0].split(': ')[1])
-        # save review user id, rating and review text in a dictionary
         reviews[i] = {
-            'user': userid_to_username(reviews[i].split(',')[0].split(': ')[1]),
+            'user': reviews[i].split(',')[0].split(': ')[1],
             'rating': reviews[i].split(',')[1].split(': ')[1],
             'review_text': reviews[i].split(',')[2].split(': ')[1]
         }
     return reviews  # Devuelve la lista modificada de diccionarios
-
 
 @app.route('/manga/<ID>')
 def manga_page(ID):
     service_name = "get_i"
     send_message(service_name, str(ID))
     response = json.loads(receive_message()[7:])
+    print(response)
     # use the manga title to search the image in the directory of static/images and append it to the response
     image_dir = './static/images'
     image_path = os.path.join(image_dir, f"{response['title']}.pdf.png")
@@ -292,7 +287,11 @@ def add_review(manga_id):
     # userid_mangaid_rating_reviewtext`
     input_data = f"{user_id}_{manga_id}_{rating}_{review_text}"
 
-    #send_message(service_name, input_data)
+    send_message(service_name, input_data)
+    response = receive_message()[7:]
+    print(response)
+    # retorna que renderice el template de reviews.html
+    #return render_template('reviews.html')
     return redirect(url_for('manga_page', ID=manga_id))
 
 #here the manga will be sent to the user
@@ -310,6 +309,8 @@ def add_to_cart():
     service_name = "addcr"
     input_data = f"{user_id}_{manga_price}_{manga_title}"
     send_message(service_name, input_data)
+    response = receive_message()[7:]
+    print(response)
     return redirect(url_for('home', message="Manga added to cart"))
 
 # carrito de compras
@@ -332,6 +333,8 @@ def add_to_wishlist():
     service_name = "addwl"
     input_data = f"{user_id} {manga_id}"
     send_message(service_name, input_data)
+    response = receive_message()[7:]
+    print(response)
     return redirect(url_for('home', message="Manga added to wishlist"))
 
 if __name__ == '__main__':
