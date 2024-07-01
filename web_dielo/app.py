@@ -242,40 +242,49 @@ def get_reviews(manga_id):
     service_name = "res_i"
     send_message(service_name, manga_id)
     reviews = receive_message()[7:]
-    # si ta vacio el review entonces retornar una lista vacia
-    if reviews == "[]":
-        return []
     
-    # [{'user': 2, 'rating': 4, 'review_text': 'Great manga, but a bit too long.'}, {'user': 5, 'rating': 1, 'review_text': 'caca'}] now divide date into users not using json
+    if reviews == "[]":
+        return [], 0.0  # Devuelve una lista vacía y un promedio de 0.0 si no hay reseñas
+    
     reviews = reviews.split('}, {')
     reviews = [review.strip('[]{}') for review in reviews]
-    print(reviews)
-    for i in range(len(reviews)):
-        reviews[i] = {
-            'user': userid_to_username(reviews[i].split(',')[0].split(': ')[1]),
-            'rating': reviews[i].split(',')[1].split(': ')[1],
-            'review_text': reviews[i].split(',')[2].split(': ')[1]
-        }
-    return reviews  # Devuelve la lista modificada de diccionarios
+    total_rating = 0
+    
+    parsed_reviews = []
+    for review in reviews:
+        parts = review.split(', ')
+        user_id = parts[0].split(': ')[1]
+        rating = int(parts[1].split(': ')[1])  # Asegúrate de convertir el rating a entero
+        review_text = parts[2].split(': ')[1].strip("'\"")
+        username = userid_to_username(user_id)
+        
+        parsed_reviews.append({
+            'user': username,
+            'rating': rating,
+            'review_text': review_text
+        })
+        
+        total_rating += rating
+    
+    average_rating = total_rating / len(parsed_reviews)
+    return parsed_reviews, average_rating
 
 @app.route('/manga/<ID>')
 def manga_page(ID):
     service_name = "get_i"
     send_message(service_name, str(ID))
     response = json.loads(receive_message()[7:])
-    print(response)
-    # use the manga title to search the image in the directory of static/images and append it to the response
+    
     image_dir = './static/images'
     image_path = os.path.join(image_dir, f"{response['title']}.pdf.png")
     if not os.path.exists(image_path):
-        # If the image does not exist, convert the PDF to an image
         image_path = convert_pdf_to_image(response['path'], image_dir)
     else:
         image_path = f"{response['title']}.pdf.png"
     response['image'] = url_for('static', filename='images/' + image_path)
-    reviews = get_reviews(ID)
-    return render_template('manga_page.html',manga_info=response, title=response["title"], reviews=reviews)
-
+    
+    reviews, average_rating = get_reviews(ID)
+    return render_template('manga_page.html', manga_info=response, title=response["title"], reviews=reviews, average_rating=average_rating)
 
 @app.route('/manga/<manga_id>/add_review', methods=['POST'])
 def add_review(manga_id):
@@ -302,7 +311,6 @@ def serve_manga(filename):
 #logica de conteo de items en el carrito
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
-    manga_id = request.form['manga_id']
     manga_title = request.form['manga_title']
     manga_price = request.form['manga_price']
     user_id = session['user_id']
