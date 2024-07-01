@@ -252,7 +252,7 @@ def get_reviews(manga_id):
     print(reviews)
     for i in range(len(reviews)):
         reviews[i] = {
-            'user': reviews[i].split(',')[0].split(': ')[1],
+            'user': userid_to_username(reviews[i].split(',')[0].split(': ')[1]),
             'rating': reviews[i].split(',')[1].split(': ')[1],
             'review_text': reviews[i].split(',')[2].split(': ')[1]
         }
