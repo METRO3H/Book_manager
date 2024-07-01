@@ -3,15 +3,10 @@ import socket
 import json
 import os
 import sys
-from time import sleep
-from pdf2image import convert_from_path
-from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image
-
+from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image, send_message, receive_message
 # Añadir el directorio padre al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from util.color import color
-from util.list_of_services import service
 
 # Definir la iniciación para la web
 app = Flask(__name__)
@@ -30,23 +25,6 @@ ALLOWED_EXTENSIONS = {'pdf'}  # adjust as needed
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def send_message(service, data):
-    response_length = len(service) + len(data)
-    response_length = str(response_length).zfill(5)
-    message = response_length + service + data
-    message = message.encode('utf-8')
-    print(color("blue", "[Status]"), color("white", "Sending to service"), color("yellow", f"'{service}'"), "->", color("yellow", f"'{data}'"))
-    sock.sendall(message)
-
-def receive_message():
-    amount_received = 0
-    amount_expected = int(sock.recv(5))
-    data = ""
-    while amount_received < amount_expected:
-        data = sock.recv(amount_expected - amount_received)
-        amount_received += len(data)
-    data = data.decode('utf-8')
-    return data
 
 # Obtener los mangas de contenido destacado
 def get_mangas():
@@ -314,9 +292,7 @@ def add_review(manga_id):
     # userid_mangaid_rating_reviewtext`
     input_data = f"{user_id}_{manga_id}_{rating}_{review_text}"
 
-    print(input_data)
-    send_message(service_name, input_data)
-    sleep(10)
+    #send_message(service_name, input_data)
     return redirect(url_for('manga_page', ID=manga_id))
 
 #here the manga will be sent to the user
@@ -347,6 +323,16 @@ def carrito():
     print(cart_items)
     #send cart items to the html
     return render_template('carrito.html', cart_items=cart_items)
+
+# agrtegar a la lista de deseos
+@app.route('/add_to_wishlist', methods=['POST'])
+def add_to_wishlist():
+    manga_id = request.form['manga_id']
+    user_id = session['user_id']
+    service_name = "addwl"
+    input_data = f"{user_id} {manga_id}"
+    send_message(service_name, input_data)
+    return redirect(url_for('home', message="Manga added to wishlist"))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses

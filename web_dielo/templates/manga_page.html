@@ -38,6 +38,11 @@
               <input type="hidden" name="manga_price" value="{{ manga_info.price }}">
               <button type="submit" class="btn btn-success">Agregar al Carrito</button>
             </form>
+            <form action="{{ url_for('add_to_wishlist') }}" method="post" style="margin-right: 10px;">
+              <input type="hidden" name="manga_id" value="{{ manga_info.id }}">
+              <input type="hidden" name="manga_title" value="{{ manga_info.title }}">
+              <button type="submit" class="btn btn-primary">Wishlist</button>
+            </form>
             <a href="{{ url_for('serve_manga', filename=manga_info.title + '.pdf') }}" download>
               <button type="button" class="btn btn-dark">Descargar</button>
             </a>
