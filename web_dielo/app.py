@@ -280,6 +280,11 @@ def get_reviews(manga_id):
     service_name = "res_i"
     send_message(service_name, manga_id)
     reviews = receive_message()[7:]
+    print('estos son')
+    print(reviews)
+    # si ta vacio el review entonces retornar una lista vacia
+    if reviews == "[]":
+        return []
     
     # reviews arrive like [{'user': 2, 'rating': 4, 'review_text': 'Great manga, but a bit too long.'}, {'user': 5, 'rating': 1, 'review_text': 'caca'}] now divide date into users not using json
     reviews = reviews.split('}, {')
