@@ -31,10 +31,18 @@
           </div>
           
           <hr/>
-          <a href="{{ url_for('serve_manga', filename=manga_info.title + '.pdf') }}" download>
-            <button id="download-button" class="btn btn-dark">Descargar</button>
-          </a>
-
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <form action="{{ url_for('add_to_cart') }}" method="post" style="margin-right: 10px;">
+              <input type="hidden" name="manga_id" value="{{ manga_info.id }}">
+              <input type="hidden" name="manga_title" value="{{ manga_info.title }}">
+              <input type="hidden" name="manga_price" value="{{ manga_info.price }}">
+              <button type="submit" class="btn btn-success">Agregar al Carrito</button>
+            </form>
+            <a href="{{ url_for('serve_manga', filename=manga_info.title + '.pdf') }}" download>
+              <button type="button" class="btn btn-dark">Descargar</button>
+            </a>
+          </div>
+  
           <hr>
           <div id="add-review">
             <h3>Agregar una reseña</h3>
@@ -50,6 +58,8 @@
                   {% endfor %}
                 </select>
               </div>
+              <!-- add the user id of the session to the form -->
+              <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
               <button type="submit" class="btn btn-primary">Enviar Reseña</button>
             </form>
           </div>

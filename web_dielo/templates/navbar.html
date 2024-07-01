@@ -15,6 +15,12 @@
             <li class="nav-item">
                 <a class="nav-link {{ 'active' if request.path == url_for('catalogo') else '' }}" href="{{ url_for('catalogo') }}">Catálogo de mangas</a>
             </li>
+            <!-- Nuevo ítem de carrito de compras -->
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if request.path == url_for('carrito') else '' }}" href="{{ url_for('carrito') }}">
+                    Carrito <span class="badge bg-secondary">{{ cart_count }}</span>
+                </a>
+            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle {{ 'active' if request.path == url_for('logout') else '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     Cerrar sesión
@@ -24,7 +30,6 @@
                 </ul>
             </li>
         </ul>
-
       </div>
     </div>
   </nav>

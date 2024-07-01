@@ -81,3 +81,11 @@ CREATE TABLE highlighted_content (
     highlight_type VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE cart (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    price DECIMAL(10, 2),
+    manga_name VARCHAR(255)
+);
+

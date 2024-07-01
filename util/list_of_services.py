@@ -18,3 +18,5 @@ class service:
     notification = "notif"
     get_contenido_destacado = "getcd"
     get_user = "getus"
+    add_cart = "addcr"
+    get_cart = "getcr"

@@ -59,3 +59,6 @@ INSERT INTO highlighted_content (manga_id, highlight_type) VALUES
     (1, 'Best Seller'),
     (3, 'Editors Pick'),
     (5, 'Fan Favorite');
+
+INSERT INTO cart (user_id, price, manga_name) VALUES
+    (2, 9.99, 'Naruto');

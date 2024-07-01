@@ -3,6 +3,7 @@ import socket
 import json
 import os
 import sys
+from time import sleep
 from pdf2image import convert_from_path
 from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image
 
@@ -253,23 +254,6 @@ def notificar():
     send_message(service_name, "Mangas que estan en destacados")
     return redirect(url_for('admin'))
 
-@app.route('/manga/<ID>')
-def manga_page(ID):
-    service_name = "get_i"
-    send_message(service_name, str(ID))
-    response = json.loads(receive_message()[7:])
-    # use the manga title to search the image in the directory of static/images and append it to the response
-    image_dir = './static/images'
-    image_path = os.path.join(image_dir, f"{response['title']}.pdf.png")
-    if not os.path.exists(image_path):
-        # If the image does not exist, convert the PDF to an image
-        image_path = convert_pdf_to_image(response['path'], image_dir)
-    else:
-        image_path = f"{response['title']}.pdf.png"
-    response['image'] = url_for('static', filename='images/' + image_path)
-    reviews = get_reviews(ID)
-    return render_template('manga_page.html',manga_info=response, title=response["title"], reviews=reviews)
-
 def userid_to_username(user_id):
     service_name = "getus"
     send_message(service_name, user_id)
@@ -289,7 +273,7 @@ def get_reviews(manga_id):
     # reviews arrive like [{'user': 2, 'rating': 4, 'review_text': 'Great manga, but a bit too long.'}, {'user': 5, 'rating': 1, 'review_text': 'caca'}] now divide date into users not using json
     reviews = reviews.split('}, {')
     reviews = [review.strip('[]{}') for review in reviews]
-
+    
     for i in range(len(reviews)):
         # print review user id
         # print(reviews[i].split(',')[0].split(': ')[1])
@@ -302,31 +286,67 @@ def get_reviews(manga_id):
     return reviews  # Devuelve la lista modificada de diccionarios
 
 
-@app.route('/add_review/<manga_id>', methods=['POST'])
+@app.route('/manga/<ID>')
+def manga_page(ID):
+    service_name = "get_i"
+    send_message(service_name, str(ID))
+    response = json.loads(receive_message()[7:])
+    # use the manga title to search the image in the directory of static/images and append it to the response
+    image_dir = './static/images'
+    image_path = os.path.join(image_dir, f"{response['title']}.pdf.png")
+    if not os.path.exists(image_path):
+        # If the image does not exist, convert the PDF to an image
+        image_path = convert_pdf_to_image(response['path'], image_dir)
+    else:
+        image_path = f"{response['title']}.pdf.png"
+    response['image'] = url_for('static', filename='images/' + image_path)
+    reviews = get_reviews(ID)
+    return render_template('manga_page.html',manga_info=response, title=response["title"], reviews=reviews)
+
+
+@app.route('/manga/<manga_id>/add_review', methods=['POST'])
 def add_review(manga_id):
-    try:
-        review_text = request.form['review_text']
-        rating = int(request.form['rating'])
-        if not (1 <= rating <= 5):
-            raise ValueError("Rating must be between 1 and 5.")
-        user_id = session.get('user_id')
-        if not user_id:
-            raise ValueError("User not logged in.")
-        
-        service_name = "rev_i"
-        data_to_send = f"{user_id}_{manga_id}_{rating}_{review_text}"
-        send_message(service_name, data_to_send)
-    except Exception as e:
-        # Log the error and handle it, e.g., return an error message to the user
-        print(f"Error adding review: {e}")
-        return "An error occurred while adding your review.", 400
+    service_name = "rev_i"
+    rating = request.form['rating']
+    review_text = request.form['review_text']
+    user_id = request.form['user_id']
     
+    # userid_mangaid_rating_reviewtext`
+    input_data = f"{user_id}_{manga_id}_{rating}_{review_text}"
+
+    print(input_data)
+    send_message(service_name, input_data)
+    sleep(10)
     return redirect(url_for('manga_page', ID=manga_id))
 
 #here the manga will be sent to the user
 @app.route('/mangas/<path:filename>')
 def serve_manga(filename):
     return send_from_directory('../mangas', filename)
+
+#logica de conteo de items en el carrito
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    manga_id = request.form['manga_id']
+    manga_title = request.form['manga_title']
+    manga_price = request.form['manga_price']
+    user_id = session['user_id']
+    service_name = "addcr"
+    input_data = f"{user_id}_{manga_price}_{manga_title}"
+    send_message(service_name, input_data)
+    return redirect(url_for('home', message="Manga added to cart"))
+
+# carrito de compras
+@app.route('/carrito')
+def carrito():
+    service_name = "getcr"
+    user_id = session['user_id']
+    send_message(service_name, user_id)
+    response = receive_message()[7:]
+    cart_items = response.split(',')
+    print(cart_items)
+    #send cart items to the html
+    return render_template('carrito.html', cart_items=cart_items)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses
