@@ -89,11 +89,32 @@ def registro():
     else:
         return render_template('register.html', error="Error al registrar un nuevo usuario")
 
+import datetime
+
+def get_sales():
+    service_name = "getes"
+    periods = ['day', 'month', 'year']
+    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    ventas = {}
+    for period in periods:
+        message = f"{current_date}_{period}"
+        send_message(service_name, message)
+        response = receive_message()[7:]
+        # quitarle el formato [Decimal('123.45')] a 123.45
+        response = response.strip("[]").strip("Decimal(')").strip("')")
+        print(response)
+        ventas[period] = response
+
+    return ventas
+get_sales()
+
 @app.route('/admin')
 def admin():
-    #mangas = get_mangas()
     mangastodos, most_sold = get_mangas_todos()
-    return render_template('admin.html', mangas=mangastodos)
+    ventas = get_sales()
+    print(ventas)
+    return render_template('admin.html', mangas=mangastodos, most_sold=most_sold, ventas=ventas)
+
 
 @app.route('/home')
 def home():

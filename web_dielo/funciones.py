@@ -2,6 +2,7 @@ import os
 from pdf2image import convert_from_path
 import socket
 import sys
+import json
 from time import sleep
 # Añadir el directorio padre al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -116,9 +117,18 @@ def get_mangas_todos():
                 
             manga_info.append({'name': manga_name, 'image': image_path})  # Append to manga_info instead of mangas
     
-    # contar el con mayor ventas
+    responses = []
+
+    # Recorrer los IDs de los mangas y obtener las respuestas
     for manga_id in mangas_id:
         send_message(service_name, manga_id)
         response = receive_message()[7:]
-         
-    return manga_info, most_sold  # Return manga_info instead of mangas
+        responses.append(json.loads(response))
+
+    # Encontrar el manga con el mayor número de ventas
+    most_sold_manga = max(responses, key=lambda x: x['sales_count'])
+    #sacar el tittle del manga mas vendido
+    most_sold_manga = most_sold_manga['title']
+        
+
+    return manga_info, most_sold_manga  # Return manga_info instead of mangas
