@@ -190,6 +190,8 @@ def upload_file():
 def notificar():
     service_name = "notif"
     send_message(service_name, "Mangas que estan en destacados")
+    response = receive_message()[7:]
+    print(response)
     return redirect(url_for('admin'))
 
 def userid_to_username(user_id):
