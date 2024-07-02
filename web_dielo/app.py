@@ -139,12 +139,15 @@ def buscarmanga():
     send_message(service_name, "all")
     response = receive_message()[7:]
     mangas = response.split(',')  # Lista de mangas recibida del servicio
-    
-    # Filtrar mangas que contienen la palabra clave en su nombre
-    filtered_mangas = [manga for manga in mangas if keyword.lower() in manga.lower()]
-    # arreglar el formato de los mangas ya que solo se envian los nombres y el genero
-    filtered_mangas = [manga.split('_') for manga in filtered_mangas]
-    print(filtered_mangas)
+    filtered_mangas = []
+    for manga in mangas:
+        print(manga)
+        partes = manga.split('_')
+        titulo = partes[1]
+        if keyword.lower() in titulo.lower():
+            filtered_mangas.append(partes)
+            print(filtered_mangas)
+        
     return render_template('catalogo.html', mangas=filtered_mangas)
 
 @app.route('/logout')
