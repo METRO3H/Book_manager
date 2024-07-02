@@ -396,6 +396,7 @@ def add_sales(user_id, response):
             input_data = f"{user_id} {manga_name}"
             send_message(service_name, input_data)
             response_addsales = receive_message()[7:]
+            print('Se agrega una venta')
             print(response_addsales)
     return mangas
 
