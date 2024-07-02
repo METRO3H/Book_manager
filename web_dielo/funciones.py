@@ -95,6 +95,7 @@ def get_mangas_todos():
     response = receive_message()[7:]
     mangas = [manga.split('_') for manga in response.split(',')]
     mangas_names = [manga[1] for manga in mangas]
+    mangas_id = [manga[0] for manga in mangas]
     print(mangas_names)
     
     # search the images of the mangas titles in the directory or create them if they don't exist
@@ -114,5 +115,10 @@ def get_mangas_todos():
                 image_path = f"{manga_name}.pdf.png"
                 
             manga_info.append({'name': manga_name, 'image': image_path})  # Append to manga_info instead of mangas
-
-    return manga_info  # Return manga_info instead of mangas
+    
+    # contar el con mayor ventas
+    for manga_id in mangas_id:
+        send_message(service_name, manga_id)
+        response = receive_message()[7:]
+         
+    return manga_info, most_sold  # Return manga_info instead of mangas

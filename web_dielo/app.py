@@ -92,7 +92,7 @@ def registro():
 @app.route('/admin')
 def admin():
     #mangas = get_mangas()
-    mangastodos = get_mangas_todos()
+    mangastodos, most_sold = get_mangas_todos()
     return render_template('admin.html', mangas=mangastodos)
 
 @app.route('/home')

@@ -17,7 +17,7 @@ def Get_Sales(date, period):
         # Create a cursor object
         cur = conn.cursor()
 
-        # Split the date into year and month
+        # Split the date into year, month, and day
         year, month, day = map(int, date.split('-'))
 
         # Construct the SQL query
@@ -48,11 +48,11 @@ def Get_Sales(date, period):
         elif period == 'day':
             # Group by day
             query = """
-                SELECT sale_date AS day, SUM(quantity) AS total_quantity, SUM(quantity * m.price) AS total_revenue
+                SELECT DATE(sale_date) AS day, SUM(quantity) AS total_quantity, SUM(quantity * m.price) AS total_revenue
                 FROM sales s
                 JOIN manga m ON s.manga_id = m.id
                 WHERE EXTRACT(YEAR FROM sale_date) = %s AND EXTRACT(MONTH FROM sale_date) = %s AND EXTRACT(DAY FROM sale_date) = %s
-                GROUP BY sale_date
+                GROUP BY DATE(sale_date)
                 ORDER BY day
             """
             # Execute the query
@@ -63,21 +63,14 @@ def Get_Sales(date, period):
         # Fetch all rows
         rows = cur.fetchall()
 
-        # Process the results
-        results = []
-        for row in rows:
-            if period == 'day':
-                results.append(f"Day {row[0]}: Total Quantity - {row[1]}, Total Revenue - {row[2]}")
-            elif period == 'month':
-                results.append(f"Month {row[0]}: Total Quantity - {row[1]}, Total Revenue - {row[2]}")
-            elif period == 'year':
-                results.append(f"Year {row[0]}: Total Quantity - {row[1]}, Total Revenue - {row[2]}")
+        # Extract only the total_revenue values
+        revenues = [row[2] for row in rows]
 
         # Close cursor and connection
         cur.close()
         conn.close()
 
-        return results
+        return revenues
 
     except psycopg2.Error as e:
         print("Error connecting to PostgreSQL database or executing query:", e)
@@ -85,21 +78,23 @@ def Get_Sales(date, period):
 
 class Get_Sales_Rentals_Service(Soa_Service):
     def process_data(self, request):
-            global service_name
+        global service_name
 
-            # Split the request into parts
-            parts = request.split("_")
+        # Split the request into parts
+        parts = request.split("_")
 
-            # Divide the period from the date
-            period = parts[-1]
-            date_str = parts[0]
-
-            fecha = date_str  # Use full date for 'day' period
-
-            print(f"Getting sales statistics for {period} {fecha}")
-            # Call Get_Sales function
-            response = Get_Sales(fecha, period)
-            return service_name, response
+        # Divide the period from the date
+        period = parts[-1]
+        date_str = parts[0]
+        # el mensaje se debe ver como "day_2021-01-01"
+        fecha = date_str  # Use full date for 'day' period
+        
+        print(f"Getting sales statistics for {period} {fecha}")
+        # Call Get_Sales function
+        response = Get_Sales(fecha, period)
+        # retornar solo el revenue
+        
+        return service_name, response
 
 # Set the service name
 service_name = service.get_estadisticas
