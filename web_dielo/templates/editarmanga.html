@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <title>Bienvenido a la biblioteca de manga virtual</title>
+    <style>
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        .grid-item img {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><form action="/logout"><button type="submit">Cerrar sesión</button></form></li>
+            <li><form action="/notificar"><button type="submit">Notificar contenido destacado</button></form></li>
+            <li><button type="button" onclick="document.getElementById('uploadModal').style.display='block'">Subir Manga</button></li>
+        </ul>
+    </nav>
+    <br>
+    
+    <h2>Todos los Mangas</h2>
+    <input type="text" id="searchBar" class="search-bar" placeholder="Buscar manga por nombre...">
+    <div id="highlightContent" class="grid-container">
+        {% for manga in mangas %}
+            <div class="grid-item" onclick="openEditModal('{{ manga.name }}')">
+                <h3>{{ manga.name }}</h3>
+                <img src="{{ url_for('static', filename='images/' + manga.image) }}" alt="{{ manga.name }} cover">
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <form class="modal-content" action="/edit" method="post">
+            <h1>Editar Manga</h1>
+            <input type="hidden" id="mangaId" name="manga_id">
+            <label for="name">Nombre</label>
+            <input type="text" id="name" name="name" required>
+            <label for="genre">Género</label>
+            <input type="text" id="genre" name="genre" required>
+            <label for="status">Estado</label>
+            <select id="status" name="status" required>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+            </select>
+            <label for="price">Precio</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+            <h2>Reviews</h2>
+            <div id="reviewsContainer"></div>
+            <button type="submit">Submit</button>
+            <button type="button" onclick="document.getElementById('editModal').style.display='none'">Close</button>
+        </form>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <form class="modal-content" action="/upload" method="post" enctype="multipart/form-data">
+            <h1>Subir Manga</h1>
+            <input type="file" id="file" name="file" required>
+            <input type="text" id="text" name="genre" placeholder="Genre" required>
+            <button type="submit">Submit</button>
+            <button type="button" onclick="document.getElementById('uploadModal').style.display='none'">Close</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('searchBar').addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            const gridItems = document.querySelectorAll('.grid-item');
+            gridItems.forEach(item => {
+                const text = item.querySelector('h3').textContent.toLowerCase();
+                if (text.includes(filter)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+        
+        function openEditModal(mangaName) {
+    fetch(`/manga_admin/${mangaName}`)
+        .then(response => response.json())
+        .then(data => {
+            const mangaInfo = data.manga_info;
+            const mangaReviews = data.manga_reviews;
+            const mangaInfoObj = JSON.parse(mangaInfo);
+            console.log(mangaReviews);
+
+            // Rellenar los campos del formulario con la información del manga
+            document.getElementById('mangaId').value = mangaInfoObj.id || '';
+            document.getElementById('name').value = mangaInfoObj.title || '';
+            document.getElementById('genre').value = mangaInfoObj.genre || '';
+            document.getElementById('status').value = mangaInfoObj.status || 'ongoing';
+            document.getElementById('price').value = mangaInfoObj.price || 0;
+
+            // Limpiar el contenedor de reseñas
+            const reviewsContainer = document.getElementById('reviewsContainer');
+            reviewsContainer.innerHTML = '';
+
+            // Verificar y procesar las reseñas
+            if (Array.isArray(mangaReviews)) {
+                mangaReviews.forEach(reviewItem => {
+                    if (Array.isArray(reviewItem)) {
+                        reviewItem.forEach(review => {
+                            if (review && typeof review === 'object') {
+                                const reviewContent = document.createElement('div');
+                                reviewContent.classList.add('review-content');
+                                reviewContent.innerHTML = `
+                                    <p><strong>User:</strong> ${review.user || 'N/A'}</p>
+                                    <p><strong>Review:</strong> ${review.review_text || 'N/A'}</p>
+                                    <p><strong>Rating:</strong> ${review.rating || 'N/A'}</p>
+                                    <button type="button" onclick="deleteReview(${review.id})">Delete</button>
+                                    <hr>
+                                `;
+                                reviewsContainer.appendChild(reviewContent);
+                            }
+                        });
+                    } else if (reviewItem && typeof reviewItem === 'object') {
+                        const reviewContent = document.createElement('div');
+                        reviewContent.classList.add('review-content');
+                        reviewContent.innerHTML = `
+                            <p><strong>User:</strong> ${reviewItem.user || 'N/A'}</p>
+                            <p><strong>Review:</strong> ${reviewItem.review_text || 'N/A'}</p>
+                            <p><strong>Rating:</strong> ${reviewItem.rating || 'N/A'}</p>
+                            <button type="button" onclick="deleteReview(${reviewItem.id})">Delete</button>
+                            <hr>
+                        `;
+                        reviewsContainer.appendChild(reviewContent);
+                    }
+                });
+            } else {
+                console.error('mangaReviews is not an array:', mangaReviews);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching manga info:', error);
+        });
+
+    // Mostrar el modal de edición
+    document.getElementById('editModal').style.display = 'block';
+}
+        function deleteReview(reviewId) {
+            fetch(`/delete_review/${reviewId}`, { method: 'DELETE' })
+                .then(response => {
+                    if (response.ok) {
+                        document.querySelector(`button[onclick="deleteReview(${reviewId})"]`).parentElement.remove();
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

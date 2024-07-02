@@ -118,6 +118,31 @@ def admin():
                            monthly_sales=ventas.get('month'), 
                            yearly_sales=ventas.get('year'))
 
+@app.route('/editarmanga')
+def editarmanga():
+    mangastodos, most_sold = get_mangas_todos()
+
+    return render_template('editarmanga.html', mangas=mangastodos, most_sold=most_sold)
+
+@app.route('/manga_admin/<string:manga_name>', methods=['GET'])
+def get_manga(manga_name):
+    # Obtener los datos del manga y sus reviews desde la base de datos
+    service_name = "getid"
+    send_message(service_name, manga_name)
+    manga_id = receive_message()[7:]
+
+    service_name = "get_i"
+    send_message(service_name, manga_id)
+    manga_info = receive_message()[7:]
+
+    manga_reviews = get_reviews(manga_id)
+
+    print(manga_info)
+    print(manga_reviews)
+
+    #ej manga info = {'title': 'Naruto', 'genre': 'Shonen', 'author': 'Mas
+    #ej reviews = [{'user': 'user1', 'rating': 5, 'review_text': 'Excelente'}, {'user': 'user2', 'rating': 4, 'review_text': 'Muy bueno'}]
+    return jsonify({'manga_info': manga_info, 'manga_reviews': manga_reviews})
 
 @app.route('/home')
 def home():
@@ -452,6 +477,7 @@ def checkout():
 
     # Enviar el archivo ZIP
     return send_file(zip_filename, as_attachment=True)
+
 
 
 if __name__ == '__main__':
