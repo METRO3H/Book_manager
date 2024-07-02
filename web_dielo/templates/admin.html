@@ -15,9 +15,24 @@
     </nav>
     <br>
     <h2>Todos los Mangas</h2>
-    <h2> Ventas diarias</h2>
-    <h2> Ventas mensuales</h2>
-    <h2> Ventas anuales</h2>
+    <div class="sales-container">
+        <div class="sales-item">
+            <h3>Ventas diarias</h3>
+            <p>{{ daily_sales }}</p>
+        </div>
+        <div class="sales-item">
+            <h3>Ventas mensuales</h3>
+            <p>{{ monthly_sales }}</p>
+        </div>
+        <div class="sales-item">
+            <h3>Ventas anuales</h3>
+            <p>{{ yearly_sales }}</p>
+        </div>
+        <div class="sales-item">
+            <h3>Manga más vendido</h3>
+            <p>{{ most_sold }}</p>
+        </div>
+    </div>
     <div id="highlightContent" class="grid-container">
         {% for manga in mangas %}
             <div class="grid-item">
