@@ -32,6 +32,8 @@
     
     flex-grow: 1;
     padding-left: 15px;
+
+    margin-top: 20px; /* Espacio entre manga-info y reviewContainer */
 }
 #title{
     font-weight: 800;
@@ -71,7 +73,12 @@
 }
 
 .review-content {
+    margin-top: 10px;
     margin-bottom: 5px;
+    border: 1px solid #ccc; /* Borde del contenedor */
+    border-radius: 10px; /* Borde redondeado */
+    padding: 20px; /* Espaciado interno para el contenido */
+    width: 100%;
 }
 
 .review-content p {
