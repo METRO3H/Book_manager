@@ -113,7 +113,10 @@ def admin():
     mangastodos, most_sold = get_mangas_todos()
     ventas = get_sales()
     print(ventas)
-    return render_template('admin.html', mangas=mangastodos, most_sold=most_sold, ventas=ventas)
+    return render_template('admin.html', mangas=mangastodos, most_sold=most_sold, 
+                           daily_sales=ventas.get('day'), 
+                           monthly_sales=ventas.get('month'), 
+                           yearly_sales=ventas.get('year'))
 
 
 @app.route('/home')

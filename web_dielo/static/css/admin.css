@@ -92,3 +92,31 @@ button[type=submit]:hover, button[type=button]:hover {
     max-width: 100%;
     height: auto;
 }
+.sales-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.sales-item {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 20%;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+.grid-item {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
