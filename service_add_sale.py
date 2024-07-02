@@ -6,13 +6,6 @@ from datetime import datetime
 from decimal import Decimal
 from credencialBD import POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
 
-def custom_serializer(obj):
-	if isinstance(obj, (datetime, date)):
-		return obj.isoformat()
-	if isinstance(obj, Decimal):
-		return float(obj)
-	raise TypeError(f"Type {type(obj)} not serializable")
-
 def Add_Sale(user_id, manga_name, quantity):
 	try:
 		# Connect to PostgreSQL
