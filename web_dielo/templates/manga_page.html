@@ -28,7 +28,7 @@
             <h5 id="publication_status">{{ manga_info.publication_status}}</h5>
             <h5 id="genre">{{ manga_info.genre}}</h5>
             <h5 id="price">${{ manga_info.price}}</h5>
-            <h5 id="average_rating">Valoración:</h5>
+            <h5 id="average_rating">Valoración por usuarios:</h5>
             {% set full_stars = average_rating|int %}
             {% set half_star = 1 if average_rating - full_stars >= 0.5 else 0 %}
             {% set empty_stars = 5 - full_stars - half_star %}

@@ -1,8 +1,39 @@
+/* Styles for the Carrito de Compras */
+#highlightContent {
+	width: 80%;
+	margin: auto;
+	
+
+}
+
+#highlightContent table {
+	width: 50%;
+	border-collapse: collapse;
+}
+
+#highlightContent table th,
+#highlightContent table td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+}
+
+#highlightContent table th {
+	padding-top: 12px;
+	padding-bottom: 12px;
+	text-align: left;
+	background-color: #333;
+	color: white;
+	
+}
+
 body {
 	font-family: Arial, sans-serif;
 	background-color: #f4f4f4;
 	margin: 0;
 	padding: 0;
+	display: flex;
+	flex-direction: column;
 }
 
 .container {
@@ -18,4 +49,38 @@ h1 {
 
 p {
 	text-align: center;
+}
+
+#catalogo-container {
+	flex-grow: 1;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	gap: 11px;
+}
+
+#filter-container {
+	display: flex;
+	justify-content: space-around;
+}
+
+.item-link {
+	text-decoration: none;
+	color: rgb(0, 38, 165);
+}
+
+#checkout-button {
+    margin-top: 20px;
+ 
+    background-color: #00440b; /* Color de fondo */
+    color: white; /* Color del texto */
+    border: none; /* Sin bordes */
+    padding: 10px 20px; /* Padding */
+    cursor: pointer; /* Cursor en forma de mano */
+    border-radius: 5px; /* Bordes redondeados */
+}
+
+#checkout-button:hover {
+    background-color: #00743e; /* Color al pasar el mouse */
 }

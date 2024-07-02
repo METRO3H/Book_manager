@@ -25,6 +25,7 @@
                         <th>#</th>
                         <th>Nombre del Manga</th>
                         <th>Precio</th>
+                        <th>Acciones</th> <!-- Nueva columna para acciones -->
                     </tr>
                 </thead>
                 <tbody>
@@ -33,6 +34,9 @@
                         <td>{{ loop.index }}</td>
                         <td>{{ manga.name }}</td>
                         <td>{{ manga.price }}</td>
+                        <td>
+                            <button class="btn btn-danger eliminar-btn" onclick="deleteManga('{{manga.name}}')">Eliminar</button>
+                            <button class="btn btn-success comprar-btn" onclick="buyManga('{{manga.name}}', this)">Agrega a tu carro</button>                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -44,6 +48,8 @@
             {% endif %}
         </div>
     </div>
+
+    
 </body>
 
 <script
@@ -51,5 +57,60 @@ src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.j
 integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
 crossorigin="anonymous"
 ></script>
+
+<script>
+    function deleteManga(manga_name) {
+        console.log('deleteManga called with:', { manga_name });
+
+        fetch(`/del_wish_item`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Asegúrate de incluir un token CSRF si tu aplicación lo requiere
+            },
+            body: JSON.stringify({ manga_name }) // Envía solo el manga_name en el cuerpo de la solicitud
+        }).then(response => {
+            console.log('Response received:', response);
+            if (response.ok) {
+                console.log('Manga deleted successfully');
+                // Recarga la página o elimina la fila de la tabla para reflejar los cambios
+                window.location.reload();
+            } else {
+                console.error('Failed to delete manga');
+                alert('No se pudo eliminar el manga.');
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+<script>
+    function buyManga(manga_name, button) {
+        console.log('buyManga called with:', { manga_name });
+
+        fetch(`/add_cart_item`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Asegúrate de incluir un token CSRF si tu aplicación lo requiere
+            },
+            body: JSON.stringify({ manga_name }) // Envía solo el manga_name en el cuerpo de la solicitud
+        }).then(response => {
+            console.log('Response received:', response);
+            if (response.ok) {
+                console.log('Manga bought successfully');
+                // Cambia el texto del botón a "¡Ya está agregado!"
+                button.textContent = '¡Ya está agregado!';
+                button.disabled = true; // Opcional: deshabilita el botón para evitar múltiples clics
+            } else {
+                console.error('Failed to buy manga');
+                alert('No se pudo agregar al carro.');
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
 
 </html>

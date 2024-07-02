@@ -1,12 +1,11 @@
-from flask import Flask, request, render_template, redirect, url_for, session, send_from_directory
+from flask import Flask, request, render_template, redirect, url_for, session, send_from_directory, jsonify
 import socket
 import json
 import os
 import sys
-from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image, send_message, receive_message
-# Añadir el directorio padre al sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image, send_message, receive_message, check_file_inFolder
+from decimal import Decimal
+import re
 
 # Definir la iniciación para la web
 app = Flask(__name__)
@@ -24,7 +23,6 @@ UPLOAD_FOLDER = '../mangas'
 ALLOWED_EXTENSIONS = {'pdf'}  # adjust as needed
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 # Obtener los mangas de contenido destacado
 def get_mangas():
@@ -303,14 +301,13 @@ def add_review(manga_id):
     #return render_template('reviews.html')
     return redirect(url_for('manga_page', ID=manga_id))
 
-#here the manga will be sent to the user
 @app.route('/mangas/<path:filename>')
 def serve_manga(filename):
     return send_from_directory('../mangas', filename)
 
-#logica de conteo de items en el carrito
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
+    manga_id = request.form['manga_id']
     manga_title = request.form['manga_title']
     manga_price = request.form['manga_price']
     user_id = session['user_id']
@@ -319,21 +316,36 @@ def add_to_cart():
     send_message(service_name, input_data)
     response = receive_message()[7:]
     print(response)
-    return redirect(url_for('home', message="Manga added to cart"))
+    return redirect(url_for('manga_page', ID=manga_id, message="Manga added to cart"))
 
-# carrito de compras
 @app.route('/carrito')
 def carrito():
     service_name = "getcr"
     user_id = session['user_id']
     send_message(service_name, user_id)
     response = receive_message()[7:]
-    cart_items = response.split(',')
-    print(cart_items)
-    #send cart items to the html
-    return render_template('carrito.html', cart_items=cart_items)
+    print(response)
+    if response == "[]":
+        return render_template('carrito.html', total=0.0, items=[])
+    
+    # Regex para encontrar elementos de la tupla
+    tuple_pattern = re.compile(r"\((\d+), (\d+), Decimal\('([\d.]+)'\), '([^']+)'\)")
 
-# agrtegar a la lista de deseos
+    # Convertir cada línea en una tupla
+    items = []
+    for line in response.split('\n'):
+        match = tuple_pattern.match(line)
+        if match:
+            id = int(match.group(1))
+            user_id = int(match.group(2))
+            precio = Decimal(match.group(3))
+            producto = match.group(4)
+            items.append((id, user_id, precio, producto))
+    #sumar todos los precios
+    total = sum([item[2] for item in items])
+    print(items)
+    return render_template('carrito.html',items=items, total=total)
+
 @app.route('/add_to_wishlist', methods=['POST'])
 def add_to_wishlist():
     manga_id = request.form['manga_id']
@@ -343,7 +355,63 @@ def add_to_wishlist():
     send_message(service_name, input_data)
     response = receive_message()[7:]
     print(response)
-    return redirect(url_for('home', message="Manga added to wishlist"))
+    return redirect(url_for('manga_page', ID=manga_id, message="Manga added to wishlist"))
+
+@app.route('/del_cart_item', methods=['POST'])
+def delete_cart_item():
+    service_name = "delcr"
+    # Ensure there is JSON in the request
+    if not request.json or 'itemId' not in request.json:
+        return jsonify({'error': 'Bad request'}), 400
+
+    item_id = request.json['itemId']
+    send_message(service_name, item_id)
+    response = receive_message()[7:]
+    print(response)
+    
+    return jsonify({'message': 'Item deleted successfully'}), 200
+
+@app.route('/add_cart_item', methods=['POST'])
+def add_cart_wish():
+    service_name = "addcr"
+    service_name2 = "getmp"
+    
+    # Ensure there is JSON in the request
+    if not request.json or 'manga_name' not in request.json:
+        return jsonify({'error': 'Bad request'}), 400
+
+    manga_name = request.json['manga_name']
+    user_id = session['user_id']
+    
+    send_message(service_name2, manga_name)
+    precio = receive_message()[7:]
+    print(precio)
+    input_data = f"{user_id}_{precio}_{manga_name}"
+    send_message(service_name, input_data)
+    response = receive_message()[7:]
+
+    print(response)
+    return jsonify({'message': 'Item added to cart successfully'}), 200 
+
+@app.route('/del_wish_item', methods=['POST'])
+def delete_wish_item():
+    service_name = "delwl"
+    
+    # Ensure there is JSON in the request
+    if not request.json or 'manga_name' not in request.json:
+        return jsonify({'error': 'Bad request'}), 400
+
+    print('tamo aca concha')
+    # hay que enviar el user_id y el manga_id
+    manga_name = request.json['manga_name']
+    user_id = session['user_id']
+    input_data = f"{user_id} {manga_name}"
+    send_message(service_name, input_data)
+
+    response = receive_message()[7:]
+    print(response)
+    
+    return jsonify({'message': 'Item deleted successfully'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses

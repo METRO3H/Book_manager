@@ -280,7 +280,6 @@ def check_and_delete_orphan_mangas():
 
     print("Orphan manga check and deletion completed.")
 
-
 def delete_duplicate_reviews():
     print("Starting duplicate reviews deletion...")
     try:
@@ -318,6 +317,29 @@ def delete_duplicate_reviews():
                 );
             """, (user_id, manga_id, user_id, manga_id))
 
+        # Find duplicate entries in the cart
+        cursor.execute("""
+            SELECT user_id, manga_name
+            FROM cart
+            GROUP BY user_id, manga_name
+            HAVING COUNT(id) > 1;
+        """)
+        cart_duplicates = cursor.fetchall()
+
+        # For each duplicate in the cart, delete all but the most recent entry
+        for user_id, manga_name in cart_duplicates:
+            print(f"Deleting duplicates in cart for user {user_id} and manga {manga_name}...")
+            cursor.execute("""
+                DELETE FROM cart
+                WHERE id IN (
+                    SELECT id
+                    FROM cart
+                    WHERE user_id = %s AND manga_name = %s
+                    ORDER BY id ASC
+                    LIMIT (SELECT COUNT(*) - 1 FROM cart WHERE user_id = %s AND manga_name = %s)
+                );
+            """, (user_id, manga_name, user_id, manga_name))
+
         # Commit changes
         conn.commit()
 
@@ -326,9 +348,9 @@ def delete_duplicate_reviews():
         cursor.close()
         conn.close()
 
-        print("Duplicate reviews deletion completed.")
+        print("Duplicate reviews and cart entries deletion completed.")
     except Exception as e:
-        print(f"Error deleting duplicate reviews: {e}")
+        print(f"Error deleting duplicate reviews or cart entries: {e}")
 
 
 if __name__ == "__main__":

@@ -41,6 +41,11 @@ class CustomService(Soa_Service):
     def process_data(self, request):
         user_id = request
         cart_info = get_cart_info(user_id)
+        #formato de respuesta para que sea mas facil de leer en app.py
+        # separamos cada item del carrito enviando separado cada item en una lista
+        cart_info = "\n".join([str(item) for item in cart_info ])
+
+        
 
         return service_name, cart_info
 

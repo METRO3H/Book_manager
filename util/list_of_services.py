@@ -20,3 +20,6 @@ class service:
     get_user = "getus"
     add_cart = "addcr"
     get_cart = "getcr"
+    delete_cart = "delcr"
+    delete_wish_list = "delwl"
+    get_manga_price = "getmp"
