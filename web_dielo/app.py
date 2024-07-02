@@ -1,9 +1,10 @@
-from flask import Flask, request, render_template, redirect, url_for, session, send_from_directory, jsonify
+from flask import Flask, request, render_template, redirect, url_for, session, send_from_directory, jsonify, send_file
+import zipfile
 import socket
 import json
 import os
 import sys
-from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image, send_message, receive_message, check_file_inFolder
+from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image, send_message, receive_message
 from decimal import Decimal
 import re
 
@@ -401,7 +402,6 @@ def delete_wish_item():
     if not request.json or 'manga_name' not in request.json:
         return jsonify({'error': 'Bad request'}), 400
 
-    print('tamo aca concha')
     # hay que enviar el user_id y el manga_id
     manga_name = request.json['manga_name']
     user_id = session['user_id']
@@ -412,6 +412,80 @@ def delete_wish_item():
     print(response)
     
     return jsonify({'message': 'Item deleted successfully'}), 200
+
+def parse_response(response):
+    manga_counts = {}
+    for line in response.split('\n'):
+        if line.strip():
+            parts = line.split(',')
+            manga_name = parts[-1].strip().strip("'")
+            if manga_name in manga_counts:
+                manga_counts[manga_name] += 1
+            else:
+                manga_counts[manga_name] = 1
+    return manga_counts
+
+def add_sales(user_id, response):
+    service_name = "addsl"
+    mangas = {}
+    i = 0
+    for line in response.split('\n'):
+        if line.strip():
+            parts = line.split(',')
+            manga_name = parts[-1].strip().strip("'")[:-2]
+            mangas[i] = [manga_name]
+            i += 1
+            input_data = f"{user_id} {manga_name}"
+            send_message(service_name, input_data)
+            response_addsales = receive_message()[7:]
+            print(response_addsales)
+    return mangas
+
+def delete_cart_items(response):
+    service_name = "delcr"
+    for line in response.split('\n'):
+        if line.strip():
+            parts = line.split(',')
+            item_id = parts[0].strip().strip("(")
+            send_message(service_name, item_id)
+            response = receive_message()[7:]
+            print(response)
+
+def create_zip_file(mangas):
+    zip_filename = "mangas.zip"
+    with zipfile.ZipFile(zip_filename, 'w') as zipf:
+        for i, manga in mangas.items():
+            filename = manga[0] + ".pdf"
+            zipf.write(os.path.join('../mangas', filename), filename)
+    return zip_filename
+
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    service_name = "getcr"
+    user_id = session['user_id']
+    send_message(service_name, user_id)
+    response = receive_message()[7:]
+
+    # Parsear el response y contar las ocurrencias de cada manga
+    manga_counts = parse_response(response)
+
+    # Verificar si algún manga se repite más de dos veces
+    for manga, count in manga_counts.items():
+        if count > 2:
+            return redirect(url_for('home', message="No puedes comprar más de dos copias de un manga"))
+
+    # Agregar a las ventas
+    mangas = add_sales(user_id, response)
+
+    # Eliminar artículos del carrito
+    delete_cart_items(response)
+
+    # Crear archivo ZIP con todos los mangas
+    zip_filename = create_zip_file(mangas)
+
+    # Enviar el archivo ZIP
+    return send_file(zip_filename, as_attachment=True)
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses

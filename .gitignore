@@ -7,6 +7,9 @@ __pycache__/
 
 #Ignore mangas
 mangas/
+# ignore zips y mangas.zip
+*.zip
+mangas.zip
 
 # Ignore environment files
 .env
