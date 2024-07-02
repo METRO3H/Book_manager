@@ -8,6 +8,15 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from util.color import color
 from util.list_of_services import service
 
+# directorio de subida de archivos
+UPLOAD_FOLDER = '../mangas'
+ALLOWED_EXTENSIONS = {'pdf'}  # adjust as needed
+
+# chequear extension archivo
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 # Configurar el socket y la dirección del bus
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 bus_address = ('localhost', 5000)
@@ -52,3 +61,58 @@ def receive_message():
         amount_received += len(data)
     data = data.decode('utf-8')
     return data
+
+# Obtener los mangas de contenido destacado
+def get_mangas():
+    service_name = "getcd"
+    send_message(service_name, "")
+    response = receive_message()[7:]
+
+    featured_content = extract_manga_names(response)
+    image_dir = './static/images'  # Directory to save images
+    os.makedirs(image_dir, exist_ok=True)
+
+    mangas = []
+    for name, promo in featured_content:
+        pdf_path = search_pdfs(name, '../mangas')
+        if pdf_path:
+            # Create the image path
+            image_path = os.path.join(image_dir, f"{name}.pdf.png")
+            # Check if the image already exists
+            if not os.path.exists(image_path):
+                # If the image does not exist, convert the PDF to an image
+                image_path = convert_pdf_to_image(pdf_path, image_dir)
+            else:
+                image_path = f"{name}.pdf.png"
+            mangas.append({'name': name, 'promo': promo, 'image': image_path})
+    return mangas
+
+
+# Obtener todos los mangas
+def get_mangas_todos():
+    service_name = "get_i"
+    send_message(service_name, "all")
+    response = receive_message()[7:]
+    mangas = [manga.split('_') for manga in response.split(',')]
+    mangas_names = [manga[1] for manga in mangas]
+    print(mangas_names)
+    
+    # search the images of the mangas titles in the directory or create them if they don't exist
+    image_dir = './static/images'  # Directory to save images
+    os.makedirs(image_dir, exist_ok=True)
+    manga_info = []  # New list for storing dictionaries
+    for manga_name in mangas_names:
+        pdf_path = search_pdfs(manga_name, '../mangas')
+        if pdf_path:
+            # Create the image path
+            image_path = os.path.join(image_dir, f"{manga_name}.pdf.png")
+            # Check if the image already exists
+            if not os.path.exists(image_path):
+                # If the image does not exist, convert the PDF to an image
+                image_path = convert_pdf_to_image(pdf_path, image_dir)
+            else:
+                image_path = f"{manga_name}.pdf.png"
+                
+            manga_info.append({'name': manga_name, 'image': image_path})  # Append to manga_info instead of mangas
+
+    return manga_info  # Return manga_info instead of mangas
