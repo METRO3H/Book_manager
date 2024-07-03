@@ -449,7 +449,7 @@ def checksales():
 
 @app.route('/confirmsale', methods=['POST'])
 def confirmsale():
-    service_name = "cnfrsl"
+    service_name = "consl"
 
     if not request.form or 'salesNumber' not in request.form or 'username' not in request.form:
         return jsonify({'error': 'Bad request'}), 400
