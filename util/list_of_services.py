@@ -25,3 +25,4 @@ class service:
     get_manga_price = "getmp"
     add_sale = "addsl"
     get_mangaid = "getid"
+    del_review = "delre"

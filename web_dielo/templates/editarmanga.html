@@ -92,8 +92,6 @@
             const mangaInfo = data.manga_info;
             const mangaReviews = data.manga_reviews;
             const mangaInfoObj = JSON.parse(mangaInfo);
-            console.log(mangaReviews);
-
             // Rellenar los campos del formulario con la información del manga
             document.getElementById('mangaId').value = mangaInfoObj.id || '';
             document.getElementById('name').value = mangaInfoObj.title || '';
@@ -104,10 +102,12 @@
             // Limpiar el contenedor de reseñas
             const reviewsContainer = document.getElementById('reviewsContainer');
             reviewsContainer.innerHTML = '';
-
+            console.log('mangaReviews:', mangaReviews);
             // Verificar y procesar las reseñas
             if (Array.isArray(mangaReviews)) {
                 mangaReviews.forEach(reviewItem => {
+                    //>:D
+                //8===D
                     if (Array.isArray(reviewItem)) {
                         reviewItem.forEach(review => {
                             if (review && typeof review === 'object') {
@@ -148,6 +148,7 @@
     document.getElementById('editModal').style.display = 'block';
 }
         function deleteReview(reviewId) {
+            console.log('Deleting review:', reviewId);
             fetch(`/delete_review/${reviewId}`, { method: 'DELETE' })
                 .then(response => {
                     if (response.ok) {

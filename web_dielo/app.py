@@ -144,6 +144,21 @@ def get_manga(manga_name):
     #ej reviews = [{'user': 'user1', 'rating': 5, 'review_text': 'Excelente'}, {'user': 'user2', 'rating': 4, 'review_text': 'Muy bueno'}]
     return jsonify({'manga_info': manga_info, 'manga_reviews': manga_reviews})
 
+#app route de del review usando el servicio delre que recibe el id de la resenia
+@app.route('/del_review', methods=['POST'])
+def delete_review():
+    service_name = "delre"
+    # Ensure there is JSON in the request
+    if not request.json or 'review_id' not in request.json:
+        return jsonify({'error': 'Bad request'}), 400
+
+    review_id = request.json['review_id']
+    send_message(service_name, review_id)
+    response = receive_message()[7:]
+    print(response)
+    
+    return jsonify({'message': 'Review deleted successfully'}), 200
+
 @app.route('/home')
 def home():
     message = request.args.get('message')
