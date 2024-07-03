@@ -474,6 +474,26 @@ def create_zip_file(mangas):
             zipf.write(os.path.join('../mangas', filename), filename)
     return zip_filename
 
+
+def gastotalcarro():
+    service_name = "getcr"
+    user_id = session['user_id']
+    send_message(service_name, user_id)
+    response = receive_message()[7:]
+    print("Response:", response)
+    
+    total = 0
+    
+    response = response.split('\n')
+    for line in response:
+        if line.strip():
+            parts = line.split(',')
+            total += float(parts[2].strip().strip("'").strip("Decimal('").strip("')"))
+    #imprime cada linea de la respuesta que se separo
+    for line in response:
+        print('esta es la linea:', line)
+    return total
+
 @app.route('/checkout', methods=['POST'])
 def checkout():
     service_name = "getcr"
@@ -492,6 +512,7 @@ def checkout():
     # Agregar a las ventas
     mangas = add_sales(user_id, response)
 
+    gasto = gastotalcarro()
     # Eliminar artículos del carrito
     delete_cart_items(response)
 
@@ -499,9 +520,22 @@ def checkout():
     zip_filename = create_zip_file(mangas)
 
     # Enviar el archivo ZIP
+
+    # Mandar comproboante de compra al usuario por mail
+    service_name = "postc"
+    # debe enviar el mensaje como : userid?gastototal_namemanga1_namemanga2_namemanga3...
+    user_id = session['user_id']
+    mangas_names = []
+    for i, manga in mangas.items():
+        mangas_names.append(manga[0])
+    # sacar cada nombre de manga de la lista y unirlos con un _ al final de mensaje
+    mensaje = f"{user_id}?{gasto}_"
+    mensaje += "_".join(mangas_names)
+    print(mensaje)
+    send_message(service_name, mensaje)
+    response = receive_message()[7:]
+
     return send_file(zip_filename, as_attachment=True)
-
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses

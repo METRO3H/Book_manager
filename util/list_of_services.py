@@ -26,3 +26,4 @@ class service:
     add_sale = "addsl"
     get_mangaid = "getid"
     del_review = "delre"
+    post_compra = "postc"

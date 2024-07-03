@@ -44,7 +44,7 @@ class CustomService(Soa_Service):
         #formato de respuesta para que sea mas facil de leer en app.py
         # separamos cada item del carrito enviando separado cada item en una lista
         cart_info = "\n".join([str(item) for item in cart_info ])
-
+        print(cart_info)
         
 
         return service_name, cart_info
