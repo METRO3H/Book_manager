@@ -29,8 +29,8 @@ def enviar_correo(remitente, destinatario, asunto, cuerpo, contraseña):
     context = ssl.create_default_context()
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
-        smtp.login(remitente,contraseña)
-        smtp.sendmail(remitente,destinatario,em.as_string())
+        smtp.login(remitente, contraseña)
+        smtp.sendmail(remitente, destinatario, em.as_string())
         print("Correo enviado")
 
 # Función para obtener el correo de un usuario por ID
@@ -54,8 +54,8 @@ class CustomService(Soa_Service):
 
         # Parsear el mensaje
         try:
-            usuario_id, detalles_compra = request.split('?')
-            usuario_id = int(usuario_id)
+            _, usuario_id_str, detalles_compra = request.split('?')
+            usuario_id = int(usuario_id_str)
             detalles = detalles_compra.split('_')
             monto_gastado = detalles[0]
             mangas_comprados = detalles[1:]
@@ -72,7 +72,7 @@ class CustomService(Soa_Service):
         remitente = "correodetareas11.9@gmail.com"
         contraseña = 'otxm trlz hnvd wlxk'
         asunto = "Comprobante de compra"
-        cuerpo = f"Hola,\n\nHas realizado una compra por un monto de {monto_gastado}.\n\nMangas comprados:\n" + "\n".join(mangas_comprados)
+        cuerpo = f"Hola,\n\nHas realizado una compra por un monto de {monto_gastado}.\n\nMangas comprados:\n" + "\n".join(mangas_comprados) + f"\n\nID del comprobante: {usuario_id}"
 
         # Enviar el correo
         enviar_correo(remitente, destinatario, asunto, cuerpo, contraseña)

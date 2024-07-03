@@ -27,3 +27,6 @@ class service:
     get_mangaid = "getid"
     del_review = "delre"
     post_compra = "postc"
+    confirm_sale = "consl"
+    check_sale = "chksl"
+    genera_comprobante = "genco"

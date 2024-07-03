@@ -108,7 +108,6 @@ def editarmanga():
 
     return render_template('editarmanga.html', mangas=mangastodos, most_sold=most_sold)
 
-
 @app.route('/manga_admin/<string:manga_name>', methods=['GET'])
 def get_manga(manga_name):
     # Obtener los datos del manga y sus reviews desde la base de datos
@@ -375,6 +374,15 @@ def delete_wish_item():
     
     return jsonify({'message': 'Item deleted successfully'}), 200
 
+def genera_comprobante(gasto):
+    service_name = "genco"
+    user_id = session['user_id']
+    input_data = f"{user_id}_{gasto}"
+    send_message(service_name, input_data)
+    response = receive_message()[7:]
+    return response
+    
+
 @app.route('/checkout', methods=['POST'])
 def checkout():
     service_name = "getcr"
@@ -392,8 +400,10 @@ def checkout():
 
     # Agregar a las ventas
     mangas = add_sales(user_id, response)
-    id_comprobante = get_id_comprobante()
+
     gasto = gastotalcarro()
+    # genera id de comprobante
+    comprobanteid = genera_comprobante(gasto)
     # Eliminar artículos del carrito
     delete_cart_items(response)
 
@@ -404,19 +414,37 @@ def checkout():
 
     # Mandar comproboante de compra al usuario por mail
     service_name = "postc"
-    # debe enviar el mensaje como : userid?gastototal_namemanga1_namemanga2_namemanga3...
+    # debe enviar el mensaje como : comprobante?userid?gastototal_namemanga1_namemanga2_namemanga3...
     user_id = session['user_id']
     mangas_names = []
     for i, manga in mangas.items():
         mangas_names.append(manga[0])
     # sacar cada nombre de manga de la lista y unirlos con un _ al final de mensaje
-    mensaje = f"{user_id}?{gasto}_"
+    mensaje = f"{comprobanteid}?{user_id}?{gasto}_"
     mensaje += "_".join(mangas_names)
     print(mensaje)
     send_message(service_name, mensaje)
     response = receive_message()[7:]
 
     return send_file(zip_filename, as_attachment=True)
+
+@app.route('/confirmsale', methods=['POST'])
+def confirmsale():
+    service_name = "consl"
+    user_id = session['user_id']
+    send_message(service_name, user_id)
+    response = receive_message()[7:]
+    print(response)
+    return redirect(url_for('home', message="Compra realizada con éxito"))
+
+@app.route('/checksales', methods=['POST'])
+def checksales():
+    service_name = "chksl"
+    user_id = session['user_id']
+    send_message(service_name, user_id)
+    response = receive_message()[7:]
+    print(response)
+    return redirect(url_for('home', message=response))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses
