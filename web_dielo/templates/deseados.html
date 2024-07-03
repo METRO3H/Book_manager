@@ -35,8 +35,9 @@
                         <td>{{ manga.name }}</td>
                         <td>{{ manga.price }}</td>
                         <td>
-                            <button class="btn btn-danger eliminar-btn" onclick="deleteManga('{{manga.name}}')">Eliminar</button>
-                            <button class="btn btn-success comprar-btn" onclick="buyManga('{{manga.name}}', this)">Agrega a tu carro</button>                        </td>
+                            <button class="btn btn-success comprar-btn" onclick="buyManga('{{manga.name}}', this)">Agrega a tu carro</button> 
+                            <button class="btn btn-danger eliminar-btn" onclick="deleteManga('{{manga.name}}')">Eliminar</button>                         
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
