@@ -1,14 +1,14 @@
 from flask import Flask, request, render_template, redirect, url_for, session, send_from_directory, jsonify, send_file
-import zipfile
+
 import socket
 import json
 import os
-import sys
+
 from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image, send_message, receive_message, get_mangas, get_mangas_todos, allowed_file
-from funciones import parse_response, add_sales, create_zip_file, gastotalcarro, delete_cart_items, get_id_comprobante, get_sales
+from funciones import parse_response, add_sales, create_zip_file, gastotalcarro, delete_cart_items, get_id_comprobante, get_sales, get_reviews, userid_to_username
 from decimal import Decimal
 import re
-import datetime
+
 
 # Definir la iniciación para la web
 app = Flask(__name__)
@@ -229,42 +229,6 @@ def notificar():
     print(response)
     return redirect(url_for('admin'))
 
-def userid_to_username(user_id):
-    service_name = "getus"
-    send_message(service_name, user_id)
-    username = receive_message()[7:]
-    return username
-
-def get_reviews(manga_id):
-    service_name = "res_i"
-    send_message(service_name, manga_id)
-    reviews = receive_message()[7:]
-    
-    if reviews == "[]":
-        return [], 0.0  # Devuelve una lista vacía y un promedio de 0.0 si no hay reseñas
-    
-    reviews = reviews.split('}, {')
-    reviews = [review.strip('[]{}') for review in reviews]
-    total_rating = 0
-    
-    parsed_reviews = []
-    for review in reviews:
-        parts = review.split(', ')
-        user_id = parts[0].split(': ')[1]
-        rating = int(parts[1].split(': ')[1])  # Asegúrate de convertir el rating a entero
-        review_text = parts[2].split(': ')[1].strip("'\"")
-        username = userid_to_username(user_id)
-        
-        parsed_reviews.append({
-            'user': username,
-            'rating': rating,
-            'review_text': review_text
-        })
-        
-        total_rating += rating
-    
-    average_rating = total_rating / len(parsed_reviews)
-    return parsed_reviews, average_rating
 
 @app.route('/manga/<ID>')
 def manga_page(ID):

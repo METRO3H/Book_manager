@@ -224,3 +224,40 @@ def get_sales():
         ventas[period] = response
 
     return ventas
+
+def userid_to_username(user_id):
+    service_name = "getus"
+    send_message(service_name, user_id)
+    username = receive_message()[7:]
+    return username
+
+def get_reviews(manga_id):
+    service_name = "res_i"
+    send_message(service_name, manga_id)
+    reviews = receive_message()[7:]
+    
+    if reviews == "[]":
+        return [], 0.0  # Devuelve una lista vacía y un promedio de 0.0 si no hay reseñas
+    
+    reviews = reviews.split('}, {')
+    reviews = [review.strip('[]{}') for review in reviews]
+    total_rating = 0
+    
+    parsed_reviews = []
+    for review in reviews:
+        parts = review.split(', ')
+        user_id = parts[0].split(': ')[1]
+        rating = int(parts[1].split(': ')[1])  # Asegúrate de convertir el rating a entero
+        review_text = parts[2].split(': ')[1].strip("'\"")
+        username = userid_to_username(user_id)
+        
+        parsed_reviews.append({
+            'user': username,
+            'rating': rating,
+            'review_text': review_text
+        })
+        
+        total_rating += rating
+    
+    average_rating = total_rating / len(parsed_reviews)
+    return parsed_reviews, average_rating
