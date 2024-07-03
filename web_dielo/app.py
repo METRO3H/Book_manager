@@ -124,6 +124,7 @@ def editarmanga():
 
     return render_template('editarmanga.html', mangas=mangastodos, most_sold=most_sold)
 
+
 @app.route('/manga_admin/<string:manga_name>', methods=['GET'])
 def get_manga(manga_name):
     # Obtener los datos del manga y sus reviews desde la base de datos
@@ -148,12 +149,19 @@ def get_manga(manga_name):
 @app.route('/del_review', methods=['POST'])
 def delete_review():
     service_name = "delre"
-    # Ensure there is JSON in the request
-    if not request.json or 'review_id' not in request.json:
+    # Ensure there is JSON in the request debe haber un user name y un manga id
+    if not request.json or 'userId' not in request.json:
         return jsonify({'error': 'Bad request'}), 400
 
-    review_id = request.json['review_id']
-    send_message(service_name, review_id)
+    
+    #send manga id and user id in one msg
+    user_name = request.json['userId']
+    #user name to user id
+    
+    manga_id = request.json['mangaId']
+    input_data = f"{userid_to_username(user_name)} {manga_id}"
+    
+    send_message(service_name, input_data)
     response = receive_message()[7:]
     print(response)
     

@@ -38,6 +38,39 @@ def get_user_name(user_id):
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
+def get_user_id(username):
+    try:
+        # Connect to PostgreSQL
+        conn = psycopg2.connect(
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT,
+            database=POSTGRES_DB,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD
+        )
+        # Create a cursor object
+        cur = conn.cursor()
+        
+        # Execute SQL query to fetch user id
+        query = """
+            SELECT id FROM users 
+            WHERE username = %s
+        """
+        cur.execute(query, (username,))
+
+        # Fetch the user id
+        row = cur.fetchone()
+        user_id = row[0] if row else "User not found"
+
+        # Close cursor and connection
+        cur.close()
+        conn.close()
+
+        return user_id
+    
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
 class CustomService(Soa_Service):
 
     def process_data(self, request):
@@ -53,10 +86,15 @@ class CustomService(Soa_Service):
             return service_name, request
 
         # Assign each part to a variable
-        user_id = data_parts[0]
+        identifier = data_parts[0]
 
-        # Call the get_user_name function
-        answer = get_user_name(user_id)
+        # Check if the identifier is a digit (user_id) or a string (username)
+        if identifier.isdigit():
+            # Call the get_user_name function
+            answer = get_user_name(identifier)
+        else:
+            # Call the get_user_id function
+            answer = get_user_id(identifier)
 
         response = answer
         

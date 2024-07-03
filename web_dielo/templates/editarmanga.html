@@ -3,18 +3,9 @@
 <head>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/editarmanga.css') }}">
     <title>Bienvenido a la biblioteca de manga virtual</title>
-    <style>
-        .search-bar {
-            width: 100%;
-            padding: 12px 20px;
-            margin: 8px 0;
-            box-sizing: border-box;
-        }
-        .grid-item img {
-            cursor: pointer;
-        }
-    </style>
+
 </head>
 <body>
     <nav>
@@ -22,6 +13,7 @@
             <li><form action="/logout"><button type="submit">Cerrar sesión</button></form></li>
             <li><form action="/notificar"><button type="submit">Notificar contenido destacado</button></form></li>
             <li><button type="button" onclick="document.getElementById('uploadModal').style.display='block'">Subir Manga</button></li>
+            <li><form action="/admin"><button type="submit">Volver a la página principal</button></form></li>
         </ul>
     </nav>
     <br>
@@ -43,7 +35,7 @@
             <h1>Editar Manga</h1>
             <input type="hidden" id="mangaId" name="manga_id">
             <label for="name">Nombre</label>
-            <input type="text" id="name" name="name" required>
+            <input type="text" id="name" name="name" readonly>
             <label for="genre">Género</label>
             <input type="text" id="genre" name="genre" required>
             <label for="status">Estado</label>
@@ -57,6 +49,7 @@
             <div id="reviewsContainer"></div>
             <button type="submit">Submit</button>
             <button type="button" onclick="document.getElementById('editModal').style.display='none'">Close</button>
+            <button type="button" onclick="deleteManga()">Eliminar Manga</button>
         </form>
     </div>
 
@@ -86,73 +79,94 @@
         });
         
         function openEditModal(mangaName) {
-    fetch(`/manga_admin/${mangaName}`)
-        .then(response => response.json())
-        .then(data => {
-            const mangaInfo = data.manga_info;
-            const mangaReviews = data.manga_reviews;
-            const mangaInfoObj = JSON.parse(mangaInfo);
-            // Rellenar los campos del formulario con la información del manga
-            document.getElementById('mangaId').value = mangaInfoObj.id || '';
-            document.getElementById('name').value = mangaInfoObj.title || '';
-            document.getElementById('genre').value = mangaInfoObj.genre || '';
-            document.getElementById('status').value = mangaInfoObj.status || 'ongoing';
-            document.getElementById('price').value = mangaInfoObj.price || 0;
+            fetch(`/manga_admin/${mangaName}`)
+                .then(response => response.json())
+                .then(data => {
+                    const mangaInfo = data.manga_info;
+                    const mangaReviews = data.manga_reviews;
+                    const mangaInfoObj = JSON.parse(mangaInfo);
+                    // Rellenar los campos del formulario con la información del manga
+                    document.getElementById('mangaId').value = mangaInfoObj.id || '';
+                    document.getElementById('name').value = mangaInfoObj.title || '';
+                    document.getElementById('genre').value = mangaInfoObj.genre || '';
+                    document.getElementById('status').value = mangaInfoObj.status || 'ongoing';
+                    document.getElementById('price').value = mangaInfoObj.price || 0;
 
-            // Limpiar el contenedor de reseñas
-            const reviewsContainer = document.getElementById('reviewsContainer');
-            reviewsContainer.innerHTML = '';
-            console.log('mangaReviews:', mangaReviews);
-            // Verificar y procesar las reseñas
-            if (Array.isArray(mangaReviews)) {
-                mangaReviews.forEach(reviewItem => {
-                    //>:D
-                //8===D
-                    if (Array.isArray(reviewItem)) {
-                        reviewItem.forEach(review => {
-                            if (review && typeof review === 'object') {
-                                const reviewContent = document.createElement('div');
-                                reviewContent.classList.add('review-content');
-                                reviewContent.innerHTML = `
-                                    <p><strong>User:</strong> ${review.user || 'N/A'}</p>
-                                    <p><strong>Review:</strong> ${review.review_text || 'N/A'}</p>
-                                    <p><strong>Rating:</strong> ${review.rating || 'N/A'}</p>
-                                    <button type="button" onclick="deleteReview(${review.id})">Delete</button>
-                                    <hr>
-                                `;
-                                reviewsContainer.appendChild(reviewContent);
+                    // Limpiar el contenedor de reseñas
+                    const reviewsContainer = document.getElementById('reviewsContainer');
+                    reviewsContainer.innerHTML = '';
+                    console.log('mangaReviews:', mangaReviews);
+                    // Verificar y procesar las reseñas
+                    if (Array.isArray(mangaReviews)) {
+                        mangaReviews.forEach(reviewItem => {
+                            if (Array.isArray(reviewItem)) {
+                                reviewItem.forEach(review => {
+                                    if (review && typeof review === 'object') {
+                                        const reviewContent = document.createElement('div');
+                                        reviewContent.classList.add('review-content');
+                                        reviewContent.innerHTML = `
+                                            <p><strong>User:</strong> ${review.user || 'N/A'}</p>
+                                            <p><strong>Review:</strong> ${review.review_text || 'N/A'}</p>
+                                            <p><strong>Rating:</strong> ${review.rating || 'N/A'}</p>
+                                            <button type="button" data-manga-id="${mangaInfoObj.id}" data-user-id="${review.user}" onclick="deleteReview(this)">Delete</button>
+                                            <hr>
+                                        `;
+                                        reviewsContainer.appendChild(reviewContent);
+                                    }
+                                });
                             }
                         });
-                    } else if (reviewItem && typeof reviewItem === 'object') {
-                        const reviewContent = document.createElement('div');
-                        reviewContent.classList.add('review-content');
-                        reviewContent.innerHTML = `
-                            <p><strong>User:</strong> ${reviewItem.user || 'N/A'}</p>
-                            <p><strong>Review:</strong> ${reviewItem.review_text || 'N/A'}</p>
-                            <p><strong>Rating:</strong> ${reviewItem.rating || 'N/A'}</p>
-                            <button type="button" onclick="deleteReview(${reviewItem.id})">Delete</button>
-                            <hr>
-                        `;
-                        reviewsContainer.appendChild(reviewContent);
+                    } else {
+                        console.error('mangaReviews is not an array:', mangaReviews);
                     }
+                })
+                .catch(error => {
+                    console.error('Error fetching manga info:', error);
                 });
-            } else {
-                console.error('mangaReviews is not an array:', mangaReviews);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching manga info:', error);
-        });
 
-    // Mostrar el modal de edición
-    document.getElementById('editModal').style.display = 'block';
-}
-        function deleteReview(reviewId) {
-            console.log('Deleting review:', reviewId);
-            fetch(`/delete_review/${reviewId}`, { method: 'DELETE' })
+            // Mostrar el modal de edición
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function deleteReview(button) {
+            const mangaId = button.getAttribute('data-manga-id');
+            const userId = button.getAttribute('data-user-id');
+            
+            console.log(`Deleting review for mangaId: ${mangaId}, userId: ${userId}`);
+            
+            // Crear el objeto de datos
+            const data = { mangaId, userId };
+
+            // Ejemplo de solicitud de eliminación
+            fetch('/del_review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success || data.message === 'Review deleted successfully') {
+                    // Eliminar la reseña del DOM
+                    button.parentElement.remove();
+                } else {
+                    console.error('Error deleting review:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting review:', error);
+            });
+        }
+
+        function deleteManga() {
+            const mangaId = document.getElementById('mangaId').value;
+            console.log('Deleting manga:', mangaId);
+            fetch(`/delete_manga/${mangaId}`, { method: 'DELETE' })
                 .then(response => {
                     if (response.ok) {
-                        document.querySelector(`button[onclick="deleteReview(${reviewId})"]`).parentElement.remove();
+                        document.getElementById('editModal').style.display = 'none';
+                        location.reload(); // Recargar la página para reflejar los cambios
                     }
                 });
         }
