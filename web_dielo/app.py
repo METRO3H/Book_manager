@@ -382,7 +382,6 @@ def genera_comprobante(gasto):
     response = receive_message()[7:]
     return response
     
-
 @app.route('/checkout', methods=['POST'])
 def checkout():
     service_name = "getcr"
@@ -428,23 +427,46 @@ def checkout():
 
     return send_file(zip_filename, as_attachment=True)
 
-@app.route('/confirmsale', methods=['POST'])
-def confirmsale():
-    service_name = "consl"
-    user_id = session['user_id']
-    send_message(service_name, user_id)
-    response = receive_message()[7:]
-    print(response)
-    return redirect(url_for('home', message="Compra realizada con éxito"))
-
 @app.route('/checksales', methods=['POST'])
 def checksales():
     service_name = "chksl"
-    user_id = session['user_id']
-    send_message(service_name, user_id)
+
+    if not request.form or 'salesNumber' not in request.form or 'username' not in request.form:
+        return jsonify({'error': 'Bad request'}), 400
+    
+    username = request.form['username']
+    userid = userid_to_username(username)
+    sales_number = request.form['salesNumber']
+
+    # enviar msg como userid_sales_number
+    input_data = f"{userid}_{sales_number}"
+    send_message(service_name, input_data)
+
     response = receive_message()[7:]
     print(response)
-    return redirect(url_for('home', message=response))
+    # las respuestas pueden ser: exito, error, nopertenece, retirado, o ha ocurrido un error
+    return jsonify({'message': response}), 200
+
+@app.route('/confirmsale', methods=['POST'])
+def confirmsale():
+    service_name = "cnfrsl"
+
+    if not request.form or 'salesNumber' not in request.form or 'username' not in request.form:
+        return jsonify({'error': 'Bad request'}), 400
+    
+    username = request.form['username']
+    userid = userid_to_username(username)
+    sales_number = request.form['salesNumber']
+
+    # enviar msg como userid_sales_number
+    input_data = f"{userid}_{sales_number}"
+    send_message(service_name, input_data)
+
+    response = receive_message()[7:]
+    print(response)
+    # las respuestas pueden ser: exito, error, nopertenece, retirado, o ha ocurrido un error
+    return jsonify({'message': response}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses

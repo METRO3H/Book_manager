@@ -60,6 +60,7 @@
 <div id="checkSalesModal" class="modal">
     <div class="modal-content">
         <h1>Comprobar Venta</h1>
+        <input type="text" id="username" name="username" placeholder="Nombre de usuario" required>
         <input type="number" id="salesNumber" name="salesNumber" placeholder="Número de venta" required>
         <button type="button" onclick="consultarVenta()">Consultar Venta</button>
         <button type="button" onclick="confirmarRetiro()">Confirmar Retiro</button>
@@ -78,29 +79,37 @@
     }
 
     function consultarVenta() {
-        var salesNumber = document.getElementById('salesNumber').value;
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/checksales';
+    const salesNumber = document.getElementById('salesNumber').value;
+    const username = document.getElementById('username').value;
+    console.log('Consultando venta:', salesNumber, 'para el usuario:', username);
 
-        var inputSalesNumber = document.createElement('input');
-        inputSalesNumber.type = 'hidden';
-        inputSalesNumber.name = 'salesNumber';
-        inputSalesNumber.value = salesNumber;
-        form.appendChild(inputSalesNumber);
-
-        var inputAction = document.createElement('input');
-        inputAction.type = 'hidden';
-        inputAction.name = 'action';
-        inputAction.value = 'consultar_venta';
-        form.appendChild(inputAction);
-
-        document.body.appendChild(form);
-        form.submit();
-    }
+    fetch('/checksales', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            'salesNumber': salesNumber,
+            'username': username
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            document.getElementById('resultMessage').innerText = data.message;
+        } else {
+            document.getElementById('resultMessage').innerText = 'Error al consultar la venta';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('resultMessage').innerText = 'Error al consultar la venta';
+    });
+}
 
     function confirmarRetiro() {
         var salesNumber = document.getElementById('salesNumber').value;
+        var username = document.getElementById('username').value;
         var form = document.createElement('form');
         form.method = 'POST';
         form.action = '/confirmsale';
@@ -110,6 +119,36 @@
         inputSalesNumber.name = 'salesNumber';
         inputSalesNumber.value = salesNumber;
         form.appendChild(inputSalesNumber);
+
+        var inputUsername = document.createElement('input');
+        inputUsername.type = 'hidden';
+        inputUsername.name = 'username';
+        inputUsername.value = username;
+        form.appendChild(inputUsername);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+
+    function confirmarRetiro() {
+        var salesNumber = document.getElementById('salesNumber').value;
+        var username = document.getElementById('username').value;
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/confirmsale';
+
+        var inputSalesNumber = document.createElement('input');
+        inputSalesNumber.type = 'hidden';
+        inputSalesNumber.name = 'salesNumber';
+        inputSalesNumber.value = salesNumber;
+        form.appendChild(inputSalesNumber);
+
+        var inputUsername = document.createElement('input');
+        inputUsername.type = 'hidden';
+        inputUsername.name = 'username';
+        inputUsername.value = username;
+        form.appendChild(inputUsername);
 
         var inputAction = document.createElement('input');
         inputAction.type = 'hidden';
