@@ -89,3 +89,11 @@ CREATE TABLE cart (
     manga_name VARCHAR(255)
 );
 
+CREATE TABLE comprobante (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    manga_id INTEGER REFERENCES manga(id),
+    total DECIMAL(10, 2),
+    retirado BOOLEAN,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

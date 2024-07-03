@@ -3,11 +3,14 @@ from pdf2image import convert_from_path
 import socket
 import sys
 import json
+import zipfile
+import datetime
 from time import sleep
 # Añadir el directorio padre al sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from util.color import color
 from util.list_of_services import service
+from flask import request, jsonify, session
 
 # directorio de subida de archivos
 UPLOAD_FOLDER = '../mangas'
@@ -132,3 +135,92 @@ def get_mangas_todos():
         
 
     return manga_info, most_sold_manga  # Return manga_info instead of mangas
+
+
+def parse_response(response):
+    manga_counts = {}
+    for line in response.split('\n'):
+        if line.strip():
+            parts = line.split(',')
+            manga_name = parts[-1].strip().strip("'")
+            if manga_name in manga_counts:
+                manga_counts[manga_name] += 1
+            else:
+                manga_counts[manga_name] = 1
+    return manga_counts
+
+def add_sales(user_id, response):
+    service_name = "addsl"
+    mangas = {}
+    i = 0
+    for line in response.split('\n'):
+        if line.strip():
+            parts = line.split(',')
+            manga_name = parts[-1].strip().strip("'")[:-2]
+            mangas[i] = [manga_name]
+            i += 1
+            input_data = f"{user_id} {manga_name}"
+            send_message(service_name, input_data)
+            response_addsales = receive_message()[7:]
+            print('Se agrega una venta')
+            print(response_addsales)
+    return mangas
+
+def create_zip_file(mangas):
+    zip_filename = "mangas.zip"
+    with zipfile.ZipFile(zip_filename, 'w') as zipf:
+        for i, manga in mangas.items():
+            filename = manga[0] + ".pdf"
+            zipf.write(os.path.join('../mangas', filename), filename)
+    return zip_filename
+
+def gastotalcarro():
+    service_name = "getcr"
+    user_id = session['user_id']
+    send_message(service_name, user_id)
+    response = receive_message()[7:]
+    print("Response:", response)
+    
+    total = 0
+    
+    response = response.split('\n')
+    for line in response:
+        if line.strip():
+            parts = line.split(',')
+            total += float(parts[2].strip().strip("'").strip("Decimal('").strip("')"))
+    #imprime cada linea de la respuesta que se separo
+    for line in response:
+        print('esta es la linea:', line)
+    return total
+
+def delete_cart_items(response):
+    service_name = "delcr"
+    for line in response.split('\n'):
+        if line.strip():
+            parts = line.split(',')
+            item_id = parts[0].strip().strip("(")
+            send_message(service_name, item_id)
+            response = receive_message()[7:]
+            print(response)
+
+def get_id_comprobante():
+    service_name = "getid"
+    send_message(service_name, "")
+    response = receive_message()[7:]
+    return response
+
+def get_sales():
+    service_name = "getes"
+    periods = ['day', 'month', 'year']
+    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    ventas = {}
+    for period in periods:
+        message = f"{current_date}_{period}"
+        send_message(service_name, message)
+        response = receive_message()[7:]
+        # quitarle el formato [Decimal('123.45')] a 123.45
+        response = response.strip("[]").strip("Decimal(')").strip("')")
+        print(response)
+        ventas[period] = response
+
+    return ventas

@@ -5,8 +5,10 @@ import json
 import os
 import sys
 from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image, send_message, receive_message, get_mangas, get_mangas_todos, allowed_file
+from funciones import parse_response, add_sales, create_zip_file, gastotalcarro, delete_cart_items, get_id_comprobante, get_sales
 from decimal import Decimal
 import re
+import datetime
 
 # Definir la iniciación para la web
 app = Flask(__name__)
@@ -89,24 +91,6 @@ def registro():
     else:
         return render_template('register.html', error="Error al registrar un nuevo usuario")
 
-import datetime
-
-def get_sales():
-    service_name = "getes"
-    periods = ['day', 'month', 'year']
-    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-    ventas = {}
-    for period in periods:
-        message = f"{current_date}_{period}"
-        send_message(service_name, message)
-        response = receive_message()[7:]
-        # quitarle el formato [Decimal('123.45')] a 123.45
-        response = response.strip("[]").strip("Decimal(')").strip("')")
-        print(response)
-        ventas[period] = response
-
-    return ventas
-get_sales()
 
 @app.route('/admin')
 def admin():
@@ -427,73 +411,6 @@ def delete_wish_item():
     
     return jsonify({'message': 'Item deleted successfully'}), 200
 
-def parse_response(response):
-    manga_counts = {}
-    for line in response.split('\n'):
-        if line.strip():
-            parts = line.split(',')
-            manga_name = parts[-1].strip().strip("'")
-            if manga_name in manga_counts:
-                manga_counts[manga_name] += 1
-            else:
-                manga_counts[manga_name] = 1
-    return manga_counts
-
-def add_sales(user_id, response):
-    service_name = "addsl"
-    mangas = {}
-    i = 0
-    for line in response.split('\n'):
-        if line.strip():
-            parts = line.split(',')
-            manga_name = parts[-1].strip().strip("'")[:-2]
-            mangas[i] = [manga_name]
-            i += 1
-            input_data = f"{user_id} {manga_name}"
-            send_message(service_name, input_data)
-            response_addsales = receive_message()[7:]
-            print('Se agrega una venta')
-            print(response_addsales)
-    return mangas
-
-def delete_cart_items(response):
-    service_name = "delcr"
-    for line in response.split('\n'):
-        if line.strip():
-            parts = line.split(',')
-            item_id = parts[0].strip().strip("(")
-            send_message(service_name, item_id)
-            response = receive_message()[7:]
-            print(response)
-
-def create_zip_file(mangas):
-    zip_filename = "mangas.zip"
-    with zipfile.ZipFile(zip_filename, 'w') as zipf:
-        for i, manga in mangas.items():
-            filename = manga[0] + ".pdf"
-            zipf.write(os.path.join('../mangas', filename), filename)
-    return zip_filename
-
-
-def gastotalcarro():
-    service_name = "getcr"
-    user_id = session['user_id']
-    send_message(service_name, user_id)
-    response = receive_message()[7:]
-    print("Response:", response)
-    
-    total = 0
-    
-    response = response.split('\n')
-    for line in response:
-        if line.strip():
-            parts = line.split(',')
-            total += float(parts[2].strip().strip("'").strip("Decimal('").strip("')"))
-    #imprime cada linea de la respuesta que se separo
-    for line in response:
-        print('esta es la linea:', line)
-    return total
-
 @app.route('/checkout', methods=['POST'])
 def checkout():
     service_name = "getcr"
@@ -511,7 +428,7 @@ def checkout():
 
     # Agregar a las ventas
     mangas = add_sales(user_id, response)
-
+    id_comprobante = get_id_comprobante()
     gasto = gastotalcarro()
     # Eliminar artículos del carrito
     delete_cart_items(response)

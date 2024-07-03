@@ -12,6 +12,7 @@
             <li><form action="/notificar"><button type="submit">Notificar contenido destacado</button></form></li>
             <li><button type="button" onclick="document.getElementById('uploadModal').style.display='block'">Subir Manga</button></li>
             <li><form action="/editarmanga"><button type="submit">Administrar</button></form></li>
+            <li><button type="button" onclick="document.getElementById('checkSalesModal').style.display='block'">Comprobar Venta</button></li>
         </ul>
     </nav>
     <br>
@@ -54,5 +55,71 @@
             <button type="button" onclick="document.getElementById('uploadModal').style.display='none'">Close</button>
         </form>
     </div>
+
+<!-- Check Sales Modal -->
+<div id="checkSalesModal" class="modal">
+    <div class="modal-content">
+        <h1>Comprobar Venta</h1>
+        <input type="number" id="salesNumber" name="salesNumber" placeholder="Número de venta" required>
+        <button type="button" onclick="consultarVenta()">Consultar Venta</button>
+        <button type="button" onclick="confirmarRetiro()">Confirmar Retiro</button>
+        <button type="button" onclick="document.getElementById('checkSalesModal').style.display='none'">Cerrar</button>
+        <p id="resultMessage"></p>
+    </div>
+</div>
+
+<script>
+    // Script to handle modal display
+    window.onclick = function(event) {
+        var checkSalesModal = document.getElementById('checkSalesModal');
+        if (event.target == checkSalesModal) {
+            checkSalesModal.style.display = "none";
+        }
+    }
+
+    function consultarVenta() {
+        var salesNumber = document.getElementById('salesNumber').value;
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/checksales';
+
+        var inputSalesNumber = document.createElement('input');
+        inputSalesNumber.type = 'hidden';
+        inputSalesNumber.name = 'salesNumber';
+        inputSalesNumber.value = salesNumber;
+        form.appendChild(inputSalesNumber);
+
+        var inputAction = document.createElement('input');
+        inputAction.type = 'hidden';
+        inputAction.name = 'action';
+        inputAction.value = 'consultar_venta';
+        form.appendChild(inputAction);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function confirmarRetiro() {
+        var salesNumber = document.getElementById('salesNumber').value;
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/confirmsale';
+
+        var inputSalesNumber = document.createElement('input');
+        inputSalesNumber.type = 'hidden';
+        inputSalesNumber.name = 'salesNumber';
+        inputSalesNumber.value = salesNumber;
+        form.appendChild(inputSalesNumber);
+
+        var inputAction = document.createElement('input');
+        inputAction.type = 'hidden';
+        inputAction.name = 'action';
+        inputAction.value = 'confirmar_retiro';
+        form.appendChild(inputAction);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
 </body>
 </html>
