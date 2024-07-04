@@ -3,11 +3,12 @@ from flask import Flask, request, render_template, redirect, url_for, session, s
 import socket
 import json
 import os
-
-from funciones import extract_manga_names, search_pdfs, convert_pdf_to_image, send_message, receive_message, get_mangas, get_mangas_todos, allowed_file
-from funciones import parse_response, add_sales, create_zip_file, gastotalcarro, delete_cart_items, get_id_comprobante, get_sales, get_reviews, userid_to_username
 from decimal import Decimal
 import re
+
+from funciones import convert_pdf_to_image, send_message, receive_message, get_mangas, get_mangas_todos, allowed_file, genera_comprobante
+from funciones import parse_response, add_sales, create_zip_file, gastotalcarro, delete_cart_items, get_sales, get_reviews, userid_to_username
+
 
 
 # Definir la iniciación para la web
@@ -91,7 +92,6 @@ def registro():
     else:
         return render_template('register.html', error="Error al registrar un nuevo usuario")
 
-
 @app.route('/admin')
 def admin():
     mangastodos, most_sold = get_mangas_todos()
@@ -128,7 +128,6 @@ def get_manga(manga_name):
     #ej reviews = [{'user': 'user1', 'rating': 5, 'review_text': 'Excelente'}, {'user': 'user2', 'rating': 4, 'review_text': 'Muy bueno'}]
     return jsonify({'manga_info': manga_info, 'manga_reviews': manga_reviews})
 
-#app route de del review usando el servicio delre que recibe el id de la resenia
 @app.route('/del_review', methods=['POST'])
 def delete_review():
     service_name = "delre"
@@ -227,7 +226,6 @@ def notificar():
     response = receive_message()[7:]
     print(response)
     return redirect(url_for('admin'))
-
 
 @app.route('/manga/<ID>')
 def manga_page(ID):
@@ -374,14 +372,6 @@ def delete_wish_item():
     
     return jsonify({'message': 'Item deleted successfully'}), 200
 
-def genera_comprobante(gasto):
-    service_name = "genco"
-    user_id = session['user_id']
-    input_data = f"{user_id}_{gasto}"
-    send_message(service_name, input_data)
-    response = receive_message()[7:]
-    return response
-    
 @app.route('/checkout', methods=['POST'])
 def checkout():
     service_name = "getcr"
@@ -466,7 +456,6 @@ def confirmsale():
     print(response)
     # las respuestas pueden ser: exito, error, nopertenece, retirado, o ha ocurrido un error
     return jsonify({'message': response}), 200
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses

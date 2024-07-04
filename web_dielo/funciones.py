@@ -261,3 +261,12 @@ def get_reviews(manga_id):
     
     average_rating = total_rating / len(parsed_reviews)
     return parsed_reviews, average_rating
+
+def genera_comprobante(gasto):
+    service_name = "genco"
+    user_id = session['user_id']
+    input_data = f"{user_id}_{gasto}"
+    send_message(service_name, input_data)
+    response = receive_message()[7:]
+    return response
+    
