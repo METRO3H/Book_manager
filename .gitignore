@@ -28,3 +28,7 @@ mangas.zip
 
 # Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+# ignore dielo problems
+util/__pycache__/list_of_services.cpython-312.pyc
+util/__pycache__/color.cpython-312.pyc
