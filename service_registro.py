@@ -49,6 +49,36 @@ def add_user(username, email, password, role):
               
     except Exception as e:
         return f"An error occurred: {str(e)}"
+    
+def verify_name(name):
+    try:
+        # Connect to PostgreSQL
+        conn = psycopg2.connect(
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT,
+            database=POSTGRES_DB,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD
+        )
+        # Create a cursor object
+        cur = conn.cursor()
+
+        queryUser = "SELECT username FROM users WHERE username = %s"
+        value = (name,)
+
+        cur.execute(queryUser, value)
+        result = cur.fetchone()
+
+        if result:
+            return "El nombre ya se encuentra en uso"
+        
+        cur.close()
+        conn.close()
+
+        return "El nombre está disponible"
+              
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
 class CustomService(Soa_Service):
     # ACA SE HACE LA MAGIA XD
@@ -70,14 +100,15 @@ class CustomService(Soa_Service):
         # Assign each part to a variable
         name, email, password = data_parts
 
-        # Call the add_user function
-        answer = add_user(name, email, password, "customer")
+        verificacion = verify_name(name)
 
-        
-        
-        response = answer
-        
-        return service_name, response
+        if verificacion == "El nombre ya se encuentra en uso":
+            return service_name, verificacion
+        else:
+            # Call the add_user function
+            answer = add_user(name, email, password, "customer")
+            response = answer
+            return service_name, response
 
 
 # Si vas a agregar un service tienes que hacerlo en util/list_of_services.py, de esa forma todo el sistema puede saber de ese service que creaste.

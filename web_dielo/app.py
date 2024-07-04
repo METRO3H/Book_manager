@@ -89,6 +89,8 @@ def registro():
         return render_template('login.html')
     elif response == "El correo ya se encuentra en uso":
         return render_template('register.html', error="El correo ya se encuentra en uso")
+    elif response == "El nombre ya se encuentra en uso":
+        return render_template('register.html', error="El nombre de usuario ya se encuentra en uso")
     else:
         return render_template('register.html', error="Error al registrar un nuevo usuario")
 
