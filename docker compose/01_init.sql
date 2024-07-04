@@ -99,7 +99,8 @@ CREATE TABLE comprobante (
 
 CREATE TABLE ventas_mangas_eliminados (
     id SERIAL PRIMARY KEY,
-    manga_id INTEGER REFERENCES manga(id),
+    manga_name VARCHAR(255),
+    manga_id INTEGER,
     total DECIMAL(10, 2),
     numero_venta INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
