@@ -10,6 +10,8 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    blocked BOOLEAN DEFAULT FALSE
+    tries INTEGER DEFAULT 0
 );
 
 CREATE TABLE manga (
