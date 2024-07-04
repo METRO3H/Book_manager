@@ -96,3 +96,11 @@ CREATE TABLE comprobante (
     retirado BOOLEAN,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE ventas_mangas_eliminados (
+    id SERIAL PRIMARY KEY,
+    manga_id INTEGER REFERENCES manga(id),
+    total DECIMAL(10, 2),
+    numero_venta INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
