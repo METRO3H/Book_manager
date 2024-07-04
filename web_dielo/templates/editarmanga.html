@@ -162,14 +162,27 @@
         function deleteManga() {
             const mangaId = document.getElementById('mangaId').value;
             console.log('Deleting manga:', mangaId);
-            fetch(`/delete_manga/${mangaId}`, { method: 'DELETE' })
-                .then(response => {
-                    if (response.ok) {
-                        document.getElementById('editModal').style.display = 'none';
-                        location.reload(); // Recargar la página para reflejar los cambios
-                    }
-                });
+            
+            fetch('/delmanga', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ mangaId: mangaId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('editModal').style.display = 'none';
+                    location.reload(); // Recargar la página para reflejar los cambios
+                } else {
+                    console.error('Error deleting manga:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting manga:', error);
+            });
         }
+
     </script>
 </body>
 </html>

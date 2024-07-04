@@ -30,3 +30,4 @@ class service:
     confirm_sale = "consl"
     check_sale = "chksl"
     genera_comprobante = "genco"
+    delmanga = "delma"
