@@ -54,7 +54,8 @@ class CustomService(Soa_Service):
 
         # Parsear el mensaje
         try:
-            _, usuario_id_str, detalles_compra = request.split('?')
+            comprobante_id_str, usuario_id_str, detalles_compra = request.split('?')
+            comprobante_id = int(comprobante_id_str)
             usuario_id = int(usuario_id_str)
             detalles = detalles_compra.split('_')
             monto_gastado = detalles[0]
@@ -72,7 +73,7 @@ class CustomService(Soa_Service):
         remitente = "correodetareas11.9@gmail.com"
         contraseña = 'otxm trlz hnvd wlxk'
         asunto = "Comprobante de compra"
-        cuerpo = f"Hola,\n\nHas realizado una compra por un monto de {monto_gastado}.\n\nMangas comprados:\n" + "\n".join(mangas_comprados) + f"\n\nID del comprobante: {usuario_id}"
+        cuerpo = f"Hola,\n\nHas realizado una compra por un monto de {monto_gastado}.\n\nMangas comprados:\n" + "\n".join(mangas_comprados) + f"\n\nID del comprobante: {comprobante_id}"
 
         # Enviar el correo
         enviar_correo(remitente, destinatario, asunto, cuerpo, contraseña)
