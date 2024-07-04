@@ -51,7 +51,7 @@ def login():
     service_name = "log_i"
     send_message(service_name, input_data)
     response = receive_message()[7:]
-    datos = response.split(" ",1)
+    datos = response.split("_",1)
     
     if len(datos) == 2:
         # La lista tiene dos partes
@@ -70,7 +70,8 @@ def login():
             session['rol'] = rol
             return redirect(url_for('home'))
     else:
-        return render_template('login.html', error="Correo o contraseña incorrecta")
+        message = datos[0]
+        return render_template('login.html', error=message)
 
 @app.route('/registrarse')
 def registrarse():
