@@ -166,12 +166,20 @@ def add_sales(user_id, response):
             print(response_addsales)
     return mangas
 
-def create_zip_file(mangas):
-    zip_filename = "mangas.zip"
+def create_zip_file(mangas, comprobanteid):
+    # Define the directory where the ZIP file will be saved
+    output_dir = '../mangas_enviados'
+    os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
+
+    # Create the ZIP filename
+    zip_filename = os.path.join(output_dir, f"mangas_{comprobanteid}.zip")
+
+    # Create the ZIP file
     with zipfile.ZipFile(zip_filename, 'w') as zipf:
         for i, manga in mangas.items():
             filename = manga[0] + ".pdf"
             zipf.write(os.path.join('../mangas', filename), filename)
+    
     return zip_filename
 
 def gastotalcarro():

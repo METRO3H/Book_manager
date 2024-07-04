@@ -399,7 +399,7 @@ def checkout():
     delete_cart_items(response)
 
     # Crear archivo ZIP con todos los mangas
-    zip_filename = create_zip_file(mangas)
+    zip_filename = create_zip_file(mangas,comprobanteid)
 
     # Enviar el archivo ZIP
 
@@ -458,6 +458,18 @@ def confirmsale():
     print(response)
     # las respuestas pueden ser: exito, error, nopertenece, retirado, o ha ocurrido un error
     return jsonify({'message': response}), 200
+
+@app.route('/delmanga', methods=['POST'])
+def delmanga():
+    service_name = "delma"
+    # obtener el manga id del js
+    if not request.json or 'mangaId' not in request.json:
+        return jsonify({'error': 'Bad request'}), 400
+    manga_id = request.json['mangaId']
+    send_message(service_name, manga_id)
+    response = receive_message()[7:]
+    print(response)
+    return redirect(url_for('editarmanga'))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses
