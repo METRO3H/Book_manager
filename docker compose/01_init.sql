@@ -12,6 +12,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     blocked BOOLEAN DEFAULT FALSE
     tries INTEGER DEFAULT 0
+    last_login TIMESTAMP by default NULL
 );
 
 CREATE TABLE manga (
