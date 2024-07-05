@@ -9,7 +9,7 @@ import re
 from funciones import convert_pdf_to_image, send_message, receive_message, get_mangas, get_mangas_todos, allowed_file, genera_comprobante
 from funciones import parse_response, add_sales, create_zip_file, gastotalcarro, delete_cart_items, get_sales, get_reviews, userid_to_username
 
-
+from functools import wraps
 
 # Definir la iniciación para la web
 app = Flask(__name__)
@@ -27,6 +27,14 @@ UPLOAD_FOLDER = '../mangas'
 ALLOWED_EXTENSIONS = {'pdf'}  # adjust as needed
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('logeo'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # chequear existencia archivo, si esta, no subir con False
 def check_file_inFolder(file):
@@ -96,6 +104,7 @@ def registro():
         return render_template('register.html', error="Error al registrar un nuevo usuario")
 
 @app.route('/admin')
+@login_required
 def admin():
     mangastodos, most_sold = get_mangas_todos()
     ventas = get_sales()
@@ -106,6 +115,7 @@ def admin():
                            yearly_sales=ventas.get('year'))
 
 @app.route('/editarmanga')
+@login_required
 def editarmanga():
     mangastodos, most_sold = get_mangas_todos()
 
@@ -132,6 +142,7 @@ def get_manga(manga_name):
     return jsonify({'manga_info': manga_info, 'manga_reviews': manga_reviews})
 
 @app.route('/del_review', methods=['POST'])
+@login_required
 def delete_review():
     service_name = "delre"
     # Ensure there is JSON in the request debe haber un user name y un manga id
@@ -153,12 +164,15 @@ def delete_review():
     return jsonify({'message': 'Review deleted successfully'}), 200
 
 @app.route('/home')
+@login_required
 def home():
+    
     message = request.args.get('message')
     mangas = get_mangas()
     return render_template('home.html', mangas=mangas, message=message)
 
 @app.route('/catalogo')
+@login_required
 def catalogo():
     service_name = "get_i"  # Nombre del servicio para obtener el contenido destacado
     send_message(service_name, "all")
@@ -169,6 +183,7 @@ def catalogo():
     return render_template('catalogo.html', mangas=mangas)
 
 @app.route('/buscar-mangas', methods=['POST'])
+@login_required
 def buscarmanga():
     keyword = request.form['search']  # Asumiendo que el campo de búsqueda en tu formulario HTML tiene el nombre 'search'
     service_name = "get_i"
@@ -192,6 +207,7 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/deseados')
+@login_required
 def deseados():
     user_id = session['user_id']  # Get the user id from the session
     service_name = "getwl"  # Nombre del servicio para obtener el contenido destacado
@@ -223,6 +239,7 @@ def upload_file():
     return redirect(url_for('admin'))
 
 @app.route('/notificar')
+@login_required
 def notificar():
     service_name = "notif"
     send_message(service_name, "Mangas que estan en destacados")
@@ -231,6 +248,7 @@ def notificar():
     return redirect(url_for('admin'))
 
 @app.route('/manga/<ID>')
+@login_required
 def manga_page(ID):
     service_name = "get_i"
     send_message(service_name, str(ID))
@@ -269,6 +287,7 @@ def serve_manga(filename):
     return send_from_directory('../mangas', filename)
 
 @app.route('/add_to_cart', methods=['POST'])
+@login_required
 def add_to_cart():
     manga_id = request.form['manga_id']
     manga_title = request.form['manga_title']
@@ -282,6 +301,7 @@ def add_to_cart():
     return redirect(url_for('manga_page', ID=manga_id, message="Manga added to cart"))
 
 @app.route('/carrito')
+@login_required
 def carrito():
     service_name = "getcr"
     user_id = session['user_id']
@@ -376,6 +396,7 @@ def delete_wish_item():
     return jsonify({'message': 'Item deleted successfully'}), 200
 
 @app.route('/checkout', methods=['POST'])
+@login_required
 def checkout():
     service_name = "getcr"
     user_id = session['user_id']
@@ -471,6 +492,24 @@ def delmanga():
     response = receive_message()[7:]
     print(response)
     return redirect(url_for('editarmanga'))
+
+@app.route('/modify_manga', methods=['POST'])
+def modify_manga():
+    service_name = "mod_i"
+    # obtener el manga id del js
+    if not request.json or 'id' not in request.json:
+        return jsonify({'error': 'Bad request'}), 400
+    
+    manga_id = request.json['id']
+    title = request.json['title']
+    genre = request.json['genre']
+    status = request.json['status'] # Cambiado de 'author' a 'status'
+    price = request.json['price']
+    input_data = f"{manga_id}_{title}_{genre}_{status}_{price}"
+    send_message(service_name, input_data)
+    response = receive_message()[7:]
+    print(response)
+    return jsonify({'message': response}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses

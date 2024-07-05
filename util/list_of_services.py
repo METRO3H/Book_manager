@@ -31,3 +31,4 @@ class service:
     check_sale = "chksl"
     genera_comprobante = "genco"
     delmanga = "delma"
+    mod_inventory = "mod_i"
