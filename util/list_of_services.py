@@ -33,3 +33,4 @@ class service:
     delmanga = "delma"
     mod_inventory = "mod_i"
     delpromo = "delpr"
+    show_sales = "showS"

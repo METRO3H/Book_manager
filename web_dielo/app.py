@@ -555,6 +555,17 @@ def addpromo():
     print(response)
     return jsonify({'message': response}), 200
 
+
+@app.route('/sales')
+def seals():
+    service_name = "showS"
+    send_message(service_name, "XD")
+    response = receive_message()[7:]
+    sales = [sale.split('_') for sale in response.split(',')]
+
+    return render_template('sales.html', sales=sales)
+    
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses
     

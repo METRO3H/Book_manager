@@ -1,0 +1,13 @@
+#sales-container{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-grow: 1;
+    width: 100%;
+    flex-direction: column;
+}
+
+#sales-table{
+    
+    flex-grow: 1;
+}

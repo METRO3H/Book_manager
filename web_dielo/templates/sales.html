@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/admin.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/navbar.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/catalogo.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='css/sales.css') }}"
+    />
+    <title>Bienvenido a la biblioteca de manga virtual</title>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li>
+          <form action="/logout"><button type="submit">Cerrar sesión</button></form>
+        </li>
+        <li>
+          <form action="/notificar">
+            <button type="submit">Notificar contenido destacado</button>
+          </form>
+        </li>
+        <li>
+          <button
+            type="button"
+            onclick="document.getElementById('uploadModal').style.display='block'"
+          >
+            Subir Manga
+          </button>
+        </li>
+        <li>
+          <form action="/editarmanga"><button type="submit">Administrar</button></form>
+        </li>
+        <li>
+          <button
+            type="button"
+            onclick="document.getElementById('checkSalesModal').style.display='block'"
+          >
+            Comprobar Venta
+          </button>
+        </li>
+      </ul>
+    </nav>
+    <br />
+    
+
+    <div id="sales-container">
+        <h2>Ventas</h2>
+        <div id="sales-table">
+            {% if sales %}
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Numero de venta</th>
+                  <th scope="col">User</th>
+                  <th scope="col">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sale_id, user_id, total in sales %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+                  <td>{{ sale_id }}</td>
+                  <td>{{ user_id }}</td>
+                  <td>${{ total }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-warning" role="alert">No hay mangas con ese resultado.</div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+      <form class="modal-content" action="/upload" method="post" enctype="multipart/form-data">
+        <h1>Subir Manga</h1>
+        <input type="file" id="file" name="file" required />
+        <input type="text" id="text" name="genre" placeholder="Genre" required />
+        <button type="submit">Submit</button>
+        <button type="button" onclick="document.getElementById('uploadModal').style.display='none'">
+          Close
+        </button>
+      </form>
+    </div>
+
+    <!-- Check Sales Modal -->
+    <div id="checkSalesModal" class="modal">
+      <div class="modal-content">
+        <h1>Comprobar Venta</h1>
+        <input type="text" id="username" name="username" placeholder="Nombre de usuario" required />
+        <input
+          type="number"
+          id="salesNumber"
+          name="salesNumber"
+          placeholder="Número de venta"
+          required
+        />
+        <button type="button" onclick="consultarVenta()">Consultar Venta</button>
+        <button type="button" onclick="confirmarRetiro()">Confirmar Retiro</button>
+        <button
+          type="button"
+          onclick="document.getElementById('checkSalesModal').style.display='none'"
+        >
+          Cerrar
+        </button>
+        <p id="resultMessage"></p>
+      </div>
+    </div>
+
+    <script>
+      // Script to handle modal display
+      window.onclick = function (event) {
+        var checkSalesModal = document.getElementById("checkSalesModal");
+        if (event.target == checkSalesModal) {
+          checkSalesModal.style.display = "none";
+        }
+      };
+
+      function consultarVenta() {
+        const salesNumber = document.getElementById("salesNumber").value;
+        const username = document.getElementById("username").value;
+        console.log("Consultando venta:", salesNumber, "para el usuario:", username);
+
+        fetch("/checksales", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            salesNumber: salesNumber,
+            username: username,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.message) {
+              document.getElementById("resultMessage").innerText = data.message;
+            } else {
+              document.getElementById("resultMessage").innerText = "Error al consultar la venta";
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            document.getElementById("resultMessage").innerText = "Error al consultar la venta";
+          });
+      }
+
+      function confirmarRetiro() {
+        const salesNumber = document.getElementById("salesNumber").value;
+        const username = document.getElementById("username").value;
+        console.log("Confirmando retiro:", salesNumber, "para el usuario:", username);
+
+        fetch("/confirmsale", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            salesNumber: salesNumber,
+            username: username,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.message) {
+              document.getElementById("resultMessage").innerText = data.message;
+            } else {
+              document.getElementById("resultMessage").innerText = "Error al confirmar el retiro";
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            document.getElementById("resultMessage").innerText = "Error al confirmar el retiro";
+          });
+      }
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
