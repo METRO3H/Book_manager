@@ -511,6 +511,50 @@ def modify_manga():
     print(response)
     return jsonify({'message': response}), 200
 
+@app.route('/editar_destacado', methods=['POST'])
+def editar_destacado():
+    service_name = "edit_i"
+    # obtener el manga id del js
+    if not request.json or 'id' not in request.json:
+        return jsonify({'error': 'Bad request'}), 400
+    
+    manga_id = request.json['id']
+    input_data = f"{manga_id}"
+    send_message(service_name, input_data)
+    response = receive_message()[7:]
+    print(response)
+    return jsonify({'message': response}), 200
+
+@app.route('/delpromo', methods=['POST'])
+def delpromo():
+    service_name = "delpr"
+    # obtener el manga id del js
+    if not request.json or 'mangaId' not in request.json:
+        return jsonify({'error': 'Bad request'}), 400
+    
+    manga_id = request.json['mangaId']
+
+    send_message(service_name, manga_id)
+    response = receive_message()[7:]
+    print(response)
+    return jsonify({'message': response}), 200
+
+@app.route('/addpromo', methods=['POST'])
+def addpromo():
+    service_name = "promo"
+    # obtener el manga id del js
+    if not request.json or 'mangaId' not in request.json:
+        return jsonify({'error': 'Bad request'}), 400
+    
+    manga_id = request.json['mangaId']
+    tipodepromo = ('Admin Choice')
+    # unir con espacio
+    input_data = f"{manga_id} {tipodepromo}"
+    send_message(service_name, input_data)
+    response = receive_message()[7:]
+    print(response)
+    return jsonify({'message': response}), 200
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to all IP addresses
     

@@ -5,7 +5,6 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/editarmanga.css') }}">
     <title>Bienvenido a la biblioteca de manga virtual</title>
-
 </head>
 <body>
     <nav>
@@ -30,118 +29,120 @@
     </div>
 
     <!-- Edit Modal -->
-<div id="editModal" class="modal">
-    <form class="modal-content" action="/edit" method="post" onsubmit="submitMangaForm(event)">
-        <h1>Editar Manga</h1>
-        <input type="hidden" id="mangaId" name="manga_id">
-        <label for="name">Nombre</label>
-        <input type="text" id="name" name="name" readonly>
-        <label for="genre">Género</label>
-        <input type="text" id="genre" name="genre" required>
-        <label for="status">Estado</label>
-        <select id="status" name="status" required>
-            <option value="ongoing">Ongoing</option>
-            <option value="completed">Completed</option>
-        </select>
-        <label for="price">Precio</label>
-        <input type="number" id="price" name="price" step="0.01" required>
-        <h2>Reviews</h2>
-        <div id="reviewsContainer"></div>
-        <button type="submit">Submit</button>
-        <button type="button" onclick="document.getElementById('editModal').style.display='none'">Close</button>
-        <button type="button" onclick="deleteManga()">Eliminar Manga</button>
-    </form>
-</div>
+    <div id="editModal" class="modal">
+        <form class="modal-content" action="/edit" method="post" onsubmit="submitMangaForm(event)">
+            <h1>Editar Manga</h1>
+            <input type="hidden" id="mangaId" name="manga_id">
+            <label for="name">Nombre</label>
+            <input type="text" id="name" name="name" readonly>
+            <label for="genre">Género</label>
+            <input type="text" id="genre" name="genre" required>
+            <label for="status">Estado</label>
+            <select id="status" name="status" required>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+            </select>
+            <label for="price">Precio</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+            <h2>Reviews</h2>
+            <div id="reviewsContainer"></div>
+            <button type="submit">Submit</button>
+            <button type="button" onclick="document.getElementById('editModal').style.display='none'">Close</button>
+            <button type="button" onclick="deleteManga()">Eliminar Manga</button>
+            <button type="button" onclick="addPromo()">Agregar Promo</button>
+            <button type="button" onclick="delPromo()">Quitar Promo</button>
+        </form>
+    </div>
 
-<script>
-    function submitMangaForm(event) {
-        event.preventDefault(); // Evitar el envío del formulario por defecto
-        console.log('Submitting manga form...');
-        const form = event.target;
-        const mangaId = document.getElementById('mangaId').value;
-        const title = document.getElementById('name').value;
-        const genre = document.getElementById('genre').value;
-        const status = document.getElementById('status').value;
-        const price = document.getElementById('price').value;
+    <script>
+        function submitMangaForm(event) {
+            event.preventDefault(); // Evitar el envío del formulario por defecto
+            console.log('Submitting manga form...');
+            const form = event.target;
+            const mangaId = document.getElementById('mangaId').value;
+            const title = document.getElementById('name').value;
+            const genre = document.getElementById('genre').value;
+            const status = document.getElementById('status').value;
+            const price = document.getElementById('price').value;
 
-        const mangaInfoObj = {
-            id: mangaId,
-            title: title,
-            genre: genre,
-            status: status,
-            price: price
-        };
-        console.log('mangaInfoObj:', mangaInfoObj);
-        fetch('/modify_manga', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(mangaInfoObj)
-        })
-        .then(response => {
-            if (response.ok) {
-                document.getElementById('editModal').style.display = 'none';
-                location.reload(); // Recargar la página para reflejar los cambios
-            } else {
-                console.error('Error submitting manga form:', response.statusText);
-            }
-        })
-        .catch(error => {
-            console.error('Error submitting manga form:', error);
-        });
-    }
-
-    function openEditModal(mangaName) {
-        fetch(`/manga_admin/${mangaName}`)
-            .then(response => response.json())
-            .then(data => {
-                const mangaInfo = data.manga_info;
-                const mangaReviews = data.manga_reviews;
-                const mangaInfoObj = JSON.parse(mangaInfo);
-                // Rellenar los campos del formulario con la información del manga
-                document.getElementById('mangaId').value = mangaInfoObj.id || '';
-                document.getElementById('name').value = mangaInfoObj.title || '';
-                document.getElementById('genre').value = mangaInfoObj.genre || '';
-                document.getElementById('status').value = mangaInfoObj.status || 'ongoing';
-                document.getElementById('price').value = mangaInfoObj.price || 0;
-                console.log('mangaInfo:', mangaInfoObj);
-                // Limpiar el contenedor de reseñas
-                const reviewsContainer = document.getElementById('reviewsContainer');
-                reviewsContainer.innerHTML = '';
-                console.log('mangaReviews:', mangaReviews);
-                // Verificar y procesar las reseñas
-                if (Array.isArray(mangaReviews)) {
-                    mangaReviews.forEach(reviewItem => {
-                        if (Array.isArray(reviewItem)) {
-                            reviewItem.forEach(review => {
-                                if (review && typeof review === 'object') {
-                                    const reviewContent = document.createElement('div');
-                                    reviewContent.classList.add('review-content');
-                                    reviewContent.innerHTML = `
-                                        <p><strong>User:</strong> ${review.user || 'N/A'}</p>
-                                        <p><strong>Review:</strong> ${review.review_text || 'N/A'}</p>
-                                        <p><strong>Rating:</strong> ${review.rating || 'N/A'}</p>
-                                        <p><strong>status:</strong> ${review.status || 'N/A'}</p>
-                                        <button type="button" data-manga-id="${mangaInfoObj.id}" data-user-id="${review.user}" onclick="deleteReview(this)">Delete</button>
-                                        <hr>
-                                    `;
-                                    reviewsContainer.appendChild(reviewContent);
-                                }
-                            });
-                        }
-                    });
+            const mangaInfoObj = {
+                id: mangaId,
+                title: title,
+                genre: genre,
+                status: status,
+                price: price
+            };
+            console.log('mangaInfoObj:', mangaInfoObj);
+            fetch('/modify_manga', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(mangaInfoObj)
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('editModal').style.display = 'none';
+                    location.reload(); // Recargar la página para reflejar los cambios
                 } else {
-                    console.error('mangaReviews is not an array:', mangaReviews);
+                    console.error('Error submitting manga form:', response.statusText);
                 }
             })
             .catch(error => {
-                console.error('Error fetching manga info:', error);
+                console.error('Error submitting manga form:', error);
             });
+        }
 
-        // Mostrar el modal de edición
-        document.getElementById('editModal').style.display = 'block';
-    }
+        function openEditModal(mangaName) {
+            fetch(`/manga_admin/${mangaName}`)
+                .then(response => response.json())
+                .then(data => {
+                    const mangaInfo = data.manga_info;
+                    const mangaReviews = data.manga_reviews;
+                    const mangaInfoObj = JSON.parse(mangaInfo);
+                    // Rellenar los campos del formulario con la información del manga
+                    document.getElementById('mangaId').value = mangaInfoObj.id || '';
+                    document.getElementById('name').value = mangaInfoObj.title || '';
+                    document.getElementById('genre').value = mangaInfoObj.genre || '';
+                    document.getElementById('status').value = mangaInfoObj.status || 'ongoing';
+                    document.getElementById('price').value = mangaInfoObj.price || 0;
+                    console.log('mangaInfo:', mangaInfoObj);
+                    // Limpiar el contenedor de reseñas
+                    const reviewsContainer = document.getElementById('reviewsContainer');
+                    reviewsContainer.innerHTML = '';
+                    console.log('mangaReviews:', mangaReviews);
+                    // Verificar y procesar las reseñas
+                    if (Array.isArray(mangaReviews)) {
+                        mangaReviews.forEach(reviewItem => {
+                            if (Array.isArray(reviewItem)) {
+                                reviewItem.forEach(review => {
+                                    if (review && typeof review === 'object') {
+                                        const reviewContent = document.createElement('div');
+                                        reviewContent.classList.add('review-content');
+                                        reviewContent.innerHTML = `
+                                            <p><strong>User:</strong> ${review.user || 'N/A'}</p>
+                                            <p><strong>Review:</strong> ${review.review_text || 'N/A'}</p>
+                                            <p><strong>Rating:</strong> ${review.rating || 'N/A'}</p>
+                                            <p><strong>status:</strong> ${review.status || 'N/A'}</p>
+                                            <button type="button" data-manga-id="${mangaInfoObj.id}" data-user-id="${review.user}" onclick="deleteReview(this)">Delete</button>
+                                            <hr>
+                                        `;
+                                        reviewsContainer.appendChild(reviewContent);
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        console.error('mangaReviews is not an array:', mangaReviews);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching manga info:', error);
+                });
+
+            // Mostrar el modal de edición
+            document.getElementById('editModal').style.display = 'block';
+        }
 
         function deleteReview(button) {
             const mangaId = button.getAttribute('data-manga-id');
@@ -198,6 +199,51 @@
             });
         }
 
+        function addPromo() {
+            const mangaId = document.getElementById('mangaId').value;
+            console.log('Adding promo to manga:', mangaId);
+            
+            fetch('/addpromo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ mangaId: mangaId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); // Recargar la página para reflejar los cambios
+                } else {
+                    console.error('Error adding promo:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error adding promo:', error);
+            });
+        }
+
+        function delPromo() {
+            const mangaId = document.getElementById('mangaId').value;
+            console.log('Removing promo from manga:', mangaId);
+            
+            fetch('/delpromo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ mangaId: mangaId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); // Recargar la página para reflejar los cambios
+                } else {
+                    console.error('Error removing promo:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error removing promo:', error);
+            });
+        }
     </script>
 </body>
 </html>

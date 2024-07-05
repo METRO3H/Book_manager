@@ -32,3 +32,4 @@ class service:
     genera_comprobante = "genco"
     delmanga = "delma"
     mod_inventory = "mod_i"
+    delpromo = "delpr"
