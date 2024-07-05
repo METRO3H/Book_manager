@@ -10,11 +10,11 @@ INSERT INTO users (username, email, password, role) VALUES
 INSERT INTO manga (
     title, genre, format, publication_status, release_date, sales_count, rental_count, price, available_online, physical_copies_available
 ) VALUES
-    ('One Piece', 'Adventure', 'Tankōbon', 'Ongoing', '1997-07-22', 450000000, 10000000, 9.99, true, 500),
-    ('Naruto', 'Adventure', 'Tankōbon', 'Completed', '1999-09-21', 250000000, 7000000, 10.99, true, 800),
-    ('Attack on Titan', 'Action', 'Tankōbon', 'Completed', '2009-09-09', 100000000, 3000000, 11.99, true, 600),
-    ('Death Note', 'Thriller', 'Tankōbon', 'Completed', '2003-12-01', 30000000, 1000000, 14.99, true, 550),
-    ('Fullmetal Alchemist', 'Fantasy', 'Tankōbon', 'Completed', '2001-07-12', 70000000, 1500000, 13.99, true, 700);
+    ('One Piece', 'Adventure', 'Tankōbon', 'Ongoing', '1997-07-22', 0, 10000000, 9.99, true, 500),
+    ('Naruto', 'Adventure', 'Tankōbon', 'Completed', '1999-09-21', 0, 7000000, 10.99, true, 800),
+    ('Attack on Titan', 'Action', 'Tankōbon', 'Completed', '2009-09-09', 0, 3000000, 11.99, true, 600),
+    ('Death Note', 'Thriller', 'Tankōbon', 'Completed', '2003-12-01', 0, 1000000, 14.99, true, 550),
+    ('Fullmetal Alchemist', 'Fantasy', 'Tankōbon', 'Completed', '2001-07-12', 0, 1500000, 13.99, true, 700);
 
 -- Insert rentals
 INSERT INTO rentals (user_id, manga_id, rental_date, return_date) VALUES

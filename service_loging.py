@@ -99,7 +99,7 @@ def trylog_user(email, password):
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return False
+        return "No se ha podido iniciar sesión. El usuario no existe."
 
 class CustomService(Soa_Service):
     # ACA SE HACE LA MAGIA XD
@@ -109,7 +109,7 @@ class CustomService(Soa_Service):
         # Data llega como name_mail_password
         # Split the data by underscore
 
-        data_parts = request.split('_')
+        data_parts = request.split('_', 1)
         # if the data is not in the correct format, return an error message
         if len(data_parts) != 2:
             response = "Bad format"
