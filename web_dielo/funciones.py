@@ -91,7 +91,6 @@ def get_mangas():
             mangas.append({'name': name, 'promo': promo, 'image': image_path})
     return mangas
 
-
 # Obtener todos los mangas
 def get_mangas_todos():
     service_name = "get_i"
@@ -135,7 +134,6 @@ def get_mangas_todos():
         
 
     return manga_info, most_sold_manga  # Return manga_info instead of mangas
-
 
 def parse_response(response):
     manga_counts = {}
