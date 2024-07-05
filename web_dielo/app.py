@@ -567,7 +567,7 @@ def seals():
     send_message(service_name, "XD")
     response = receive_message()[7:]
     sales = [sale.split('_') for sale in response.split(',')]
-
+    
     return render_template('sales.html', sales=sales)
     
 

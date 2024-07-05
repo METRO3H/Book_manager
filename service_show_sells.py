@@ -20,7 +20,7 @@ def Get_All():
 
         # Execute SQL query to select manga names and genres
         query = """--sql
-         SELECT id, user_id, total FROM comprobante;
+         SELECT comprobante.id, user_id, users.email, total FROM comprobante JOIN users ON users.id = comprobante.user_id;
         """
         cur.execute(query)
 
@@ -35,12 +35,12 @@ def Get_All():
             return False
 
         # Format the results as 'name_genre'
-        sells_info = [f"{id}_{user_id}_{total}" for id, user_id, total in sells_info]
+        sells_info = [f"{id}_{user_id}_{email}_{total}" for id, user_id, email, total in sells_info]
 
         # Join the results into a single string, separated by commas
         sells_info_str = ",".join(sells_info)
         
-        
+        print(sells_info_str)
         return sells_info_str
 
     except Exception as e:

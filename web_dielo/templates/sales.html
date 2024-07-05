@@ -58,15 +58,17 @@
                   <th scope="col">#</th>
                   <th scope="col">Numero de venta</th>
                   <th scope="col">User</th>
+                  <th scope="col">Email</th>
                   <th scope="col">Total</th>
                 </tr>
               </thead>
               <tbody>
-                {% for sale_id, user_id, total in sales %}
+                {% for sale_id, user_id, email, total in sales %}
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ sale_id }}</td>
                   <td>{{ user_id }}</td>
+                  <td>{{ email }}</td>
                   <td>${{ total }}</td>
                 </tr>
                 {% endfor %}
