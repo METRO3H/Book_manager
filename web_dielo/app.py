@@ -1,3 +1,4 @@
+from time import sleep
 from flask import Flask, request, render_template, redirect, url_for, session, send_from_directory, jsonify, send_file
 
 import socket
@@ -298,7 +299,7 @@ def add_to_cart():
     send_message(service_name, input_data)
     response = receive_message()[7:]
     print(response)
-    return redirect(url_for('manga_page', ID=manga_id, message="Manga added to cart"))
+    return redirect(url_for('catalogo', ID=manga_id, message="Manga added to cart"))
 
 @app.route('/carrito')
 @login_required
@@ -338,7 +339,7 @@ def add_to_wishlist():
     send_message(service_name, input_data)
     response = receive_message()[7:]
     print(response)
-    return redirect(url_for('manga_page', ID=manga_id, message="Manga added to wishlist"))
+    return redirect(url_for('deseados', ID=manga_id, message="Manga added to wishlist"))
 
 @app.route('/del_cart_item', methods=['POST'])
 def delete_cart_item():
@@ -438,7 +439,9 @@ def checkout():
     print(mensaje)
     send_message(service_name, mensaje)
     response = receive_message()[7:]
-
+    
+    # redirect(url_for('carrito', message="No puedes comprar más de dos copias de un manga"))
+    
     return send_file(zip_filename, as_attachment=True)
 
 @app.route('/checksales', methods=['POST'])

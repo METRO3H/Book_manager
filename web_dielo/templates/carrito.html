@@ -47,7 +47,7 @@
 					</tr>
 				</tbody>
 			</table>
-			<form action="/checkout" method="POST">
+			<form id="checkoutForm" action="/checkout" method="POST">
 				<button id="checkout-button" type="submit" class="btn btn-primary">Comprar</button>
 			{% else %}
 			<div class="alert alert-warning" role="alert">
@@ -81,5 +81,38 @@ crossorigin="anonymous"
 			}
 		}).catch(error => console.error('Error:', error));
 	}
+
+	// const btn_buy = document.querySelector("btn-buy")
+	// btn_buy.addEventListener("submit", function(){
+	// 	event.preventDefault();
+
+	// })
+	document.getElementById('checkoutForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+			document.body.style.cursor = "progress"
+            fetch(this.action, {
+                method: this.method,
+                body: new FormData(this)
+            }).then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Network response was not ok.');
+            }).then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'mangas.zip';  // Cambia esto al nombre del archivo deseado
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                // Redirigir después de la descarga
+                window.location.href = "{{ url_for('carrito', message='Compra realizada con éxito') }}";
+            }).catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        });
 	</script>
 </html>
