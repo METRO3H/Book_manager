@@ -9,10 +9,17 @@
 <body>
     <nav>
         <ul>
-            <li><form action="/logout"><button type="submit">Cerrar sesión</button></form></li>
-            <li><form action="/notificar"><button type="submit">Notificar contenido destacado</button></form></li>
+            <li><form action="/admin"><button type="submit">Inicio</button></form></li>
+            
             <li><button type="button" onclick="document.getElementById('uploadModal').style.display='block'">Subir Manga</button></li>
-            <li><form action="/admin"><button type="submit">Volver a la página principal</button></form></li>
+            <li><form action="/editarmanga"><button type="submit">Editar manga</button></form></li>
+            <li><form action="/sales"><button type="submit">Ventas</button></form></li>
+            <li><button type="button" onclick="document.getElementById('checkSalesModal').style.display='block'">Comprobar Venta</button></li>
+            
+            <li><form action="/notificar"><button type="submit">Notificar contenido destacado</button></form></li>
+            <li>
+                <form action="/logout"><button type="submit">Cerrar sesión</button></form>
+              </li>
         </ul>
     </nav>
     <br>
