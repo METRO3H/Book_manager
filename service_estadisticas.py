@@ -57,6 +57,21 @@ def Get_Sales(date, period):
             """
             # Execute the query
             cur.execute(query, (year, month, day))
+        elif period == 'deleted':
+           # Group by month for deleted manga sales
+            query = """
+                SELECT SUM(total) AS total_revenue
+                FROM ventas_mangas_eliminados
+            """
+            # Execute the query
+            cur.execute(query,)
+            total = cur.fetchall()
+
+            # Close cursor and connection
+            cur.close()
+            conn.close()
+            
+            return total
         else:
             raise ValueError("Invalid period specified. Supported values are 'day', 'month', or 'year'.")
 
@@ -102,3 +117,5 @@ service_name = service.get_estadisticas
 # Create and run the service
 test_service = Get_Sales_Rentals_Service(service_name)
 test_service.run()
+
+
