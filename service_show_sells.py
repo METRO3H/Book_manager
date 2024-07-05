@@ -20,7 +20,7 @@ def Get_All():
 
         # Execute SQL query to select manga names and genres
         query = """--sql
-         SELECT id, user_id, total FROM comprobante JOIN users ON users.id = comprobante.user_id JOIN manga ON manga.id = comprobante.;
+         SELECT id, user_id, total FROM comprobante;
         """
         cur.execute(query)
 
