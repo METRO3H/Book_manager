@@ -488,6 +488,8 @@ def delmanga():
     if not request.json or 'mangaId' not in request.json:
         return jsonify({'error': 'Bad request'}), 400
     manga_id = request.json['mangaId']
+
+    print('ENVIADO EL ID DEL MANGA', manga_id)
     send_message(service_name, manga_id)
     response = receive_message()[7:]
     print(response)

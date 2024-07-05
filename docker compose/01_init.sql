@@ -104,7 +104,7 @@ CREATE TABLE ventas_mangas_eliminados (
     id SERIAL PRIMARY KEY,
     manga_name VARCHAR(255),
     manga_id INTEGER,
-    total DECIMAL(10, 2),
+    total DECIMAL(20, 10),
     numero_venta INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
