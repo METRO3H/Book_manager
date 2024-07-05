@@ -217,7 +217,7 @@ def get_id_comprobante():
 
 def get_sales():
     service_name = "getes"
-    periods = ['day', 'month', 'year']
+    periods = ['day', 'month', 'year', 'deleted']
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
     ventas = {}
     for period in periods:
@@ -225,8 +225,9 @@ def get_sales():
         send_message(service_name, message)
         response = receive_message()[7:]
         # quitarle el formato [Decimal('123.45')] a 123.45
-        response = response.strip("[]").strip("Decimal(')").strip("')")
         print(response)
+        response = response.strip("[]").strip("Decimal(')").strip("')")
+        
         ventas[period] = response
 
     return ventas
