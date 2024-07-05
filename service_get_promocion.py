@@ -19,7 +19,7 @@ def get_promocion():
 
         # Execute SQL query to get all the manga highlights
         query = """
-                    SELECT m.title, h.highlight_type, h.created_at
+                    SELECT m.title, h.highlight_type
                     FROM highlighted_content h
                     JOIN manga m ON h.manga_id = m.id
                 """
@@ -35,7 +35,7 @@ def get_promocion():
         if not results:
             return "No se encontraron promociones."
         else:
-            return "\n".join([f"Manga: {manga_title}|Promoción: {highlight_type}" for manga_title, highlight_type, created_at in results])
+            return "\n".join([f"Manga: {manga_title}|Promoción: {highlight_type}" for manga_title, highlight_type in results])
     
     except Exception as e:
         return f"A ocurrido un error: {str(e)}"
@@ -46,6 +46,7 @@ class CustomService(Soa_Service):
         global service_name
         request = 'se ha solicitado la promoción de los mangas.'
         respuesta = get_promocion()
+        print(respuesta)
 
         return service_name, respuesta
 
